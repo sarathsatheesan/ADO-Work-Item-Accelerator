@@ -52,7 +52,6 @@
 
     <div id="app-container" class="flex flex-col md:flex-row h-screen">
 
-        <!-- Main Content -->
         <main class="flex-1 p-6 md:p-8 lg:p-10 bg-white overflow-y-auto">
             <header class="mb-8">
                 <h1 class="text-3xl font-bold text-gray-900">ADO Work Item Accelerator - AWiA</h1>
@@ -60,57 +59,54 @@
             </header>
             
             <div id="template-container" class="fade-in">
-                 <div class="text-center p-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
-                    <div id="welcome-icon" class="mx-auto h-12 w-12 text-gray-400"></div>
-                    <h3 class="mt-2 text-lg font-medium text-gray-900">Welcome to the Accelerator</h3>
-                    <p class="mt-1 text-sm text-gray-500">Select a template from the right to begin.</p>
-                </div>
+                   <div class="text-center p-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                     <div id="welcome-icon" class="mx-auto h-12 w-12 text-gray-400"></div>
+                     <h3 class="mt-2 text-lg font-medium text-gray-900">Welcome to the Accelerator</h3>
+                     <p class="mt-1 text-sm text-gray-500">Select a template from the right to begin.</p>
+                 </div>
             </div>
 
             <footer id="action-footer" class="mt-8 pt-6 border-t border-gray-200 hidden">
-                 <div class="flex items-center justify-end space-x-4">
-                    <button id="copy-button" class="flex items-center px-4 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                        <div id="copy-icon" class="w-5 h-5 mr-2"></div>
-                        Copy Output
-                    </button>
-                    <button id="reset-button" class="flex items-center px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
-                        <div id="reset-icon" class="w-5 h-5 mr-2"></div>
-                        Reset
-                    </button>
-                    <button id="ado-button" class="flex items-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        <div id="ado-icon" class="w-5 h-5 mr-2"></div>
-                        Create in ADO
-                    </button>
+                   <div class="flex items-center justify-end space-x-4">
+                     <button id="copy-button" class="flex items-center px-4 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                         <div id="copy-icon" class="w-5 h-5 mr-2"></div>
+                         Copy Output
+                     </button>
+                     <button id="reset-button" class="flex items-center px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
+                         <div id="reset-icon" class="w-5 h-5 mr-2"></div>
+                         Reset
+                     </button>
+                     <button id="ado-button" class="flex items-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                         <div id="ado-icon" class="w-5 h-5 mr-2"></div>
+                         Create in ADO
+                     </button>
                  </div>
             </footer>
         </main>
 
-        <!-- Right Sidebar Menu -->
         <aside class="w-full md:w-72 bg-[#f8fafc] p-6 border-l border-gray-200">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-bold">Work Items</h2>
-                 <button id="config-button" title="Configure Templates" class="text-gray-500 hover:text-blue-600">
-                     <div id="settings-icon"></div>
-                </button>
+                   <button id="config-button" title="Configure Templates" class="text-gray-500 hover:text-blue-600">
+                       <div id="settings-icon"></div>
+                 </button>
             </div>
             <nav id="menu-container" class="space-y-2">
-                <!-- Dynamic menu buttons will be inserted here -->
-            </nav>
+                </nav>
         </aside>
     </div>
 
-    <!-- Configuration Modal -->
     <div id="config-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center p-4 z-50">
         <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center mb-4 pb-4 border-b">
                 <h3 class="text-2xl font-bold">Configure Templates</h3>
                 <button id="close-config-modal-button" class="text-gray-500 hover:text-red-600">
-                     <div id="close-icon-config"></div>
-                </button>
+                       <div id="close-icon-config"></div>
+                 </button>
             </div>
             <div id="modal-content" class="overflow-y-auto flex-grow pr-2">
-                 <p class="text-sm text-gray-600 mb-4">Edit the JSON configuration for each template below. Changes are saved to your browser's local storage.</p>
-                 <div id="json-editors" class="space-y-6"></div>
+                   <p class="text-sm text-gray-600 mb-4">Edit the JSON configuration for each template below. Changes are saved to your browser's local storage.</p>
+                   <div id="json-editors" class="space-y-6"></div>
             </div>
             <div class="mt-6 pt-4 border-t flex justify-end">
                 <button id="save-config-button" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
@@ -120,14 +116,13 @@
         </div>
     </div>
     
-    <!-- ADO Integration Modal -->
     <div id="ado-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center p-4 z-50">
         <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-lg">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-2xl font-bold">Create in Azure DevOps</h3>
                 <button id="close-ado-modal-button" class="text-gray-500 hover:text-red-600">
-                     <div id="close-icon-ado"></div>
-                </button>
+                       <div id="close-icon-ado"></div>
+                 </button>
             </div>
             <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md mb-6" role="alert">
                 <div class="flex">
@@ -161,7 +156,6 @@
     </div>
 
 
-    <!-- Toast Notification -->
     <div id="toast-notification" class="toast fixed bottom-10 right-10 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg z-50">
         <p id="toast-message"></p>
     </div>
@@ -262,7 +256,7 @@
                         { id: 'tasks', label: 'Tasks', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 4 },
                     ]
                 },
-                 'Decision': {
+                'Decision': {
                     title: 'Decision',
                     description: 'Describe a problem or context, and the AI will generate a structured decision log entry.',
                     fields: [
@@ -446,525 +440,460 @@
                     });
                     formHTML += `</div>`;
                 }
-                
+
                 templateContainer.innerHTML = `
-                    <div class="fade-in">
-                        <h2 class="text-2xl font-bold text-gray-900">${template.title}</h2>
-                        <p class="text-gray-600 mt-1 mb-6">${template.description}</p>
-                        ${formHTML}
-                    </div>`;
-                
-                const handlerMap = {
-                    'Feature': handleFeatureAiGeneration,
-                    'Risk': handleRiskAiGeneration,
-                    'User Story': handleUserStoryAiGeneration,
-                    'Impediment': handleImpedimentAiGeneration,
-                    'Spike': handleSpikeAiGeneration,
-                    'Decision': handleDecisionAiGeneration,
-                    'Team PI Objective': handleTeamPIObjectiveAiGeneration,
-                    'Team Iteration Goal': handleTeamIterationGoalAiGeneration,
-                    'Program PI Objective': handleProgramPIObjectiveAiGeneration,
-                    'BDD': handleBddAiGeneration
-                };
+                    <div class="bg-white p-6 rounded-lg shadow-xl border border-gray-200">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">${template.title}</h2>
+                        <p class="text-gray-600 mb-6">${template.description}</p>
+                        <form id="template-form">
+                            ${formHTML}
+                        </form>
+                    </div>
+                `;
+                lucide.createIcons();
+                actionFooter.classList.remove('hidden');
 
-                const generateButtonId = `${key.toLowerCase().replace(/\s/g, '')}-generate-button`;
-                const button = document.getElementById(generateButtonId);
-                if (button && handlerMap[key]) {
-                    button.addEventListener('click', handlerMap[key]);
-                } else if (key === 'BDD') {
-                     const detailsField = document.getElementById('scenarioDetails');
-                    if (detailsField) {
-                         const buttonContainer = document.createElement('div');
-                        buttonContainer.className = 'mt-4 text-right';
-                        const generateButton = document.createElement('button');
-                        generateButton.id = 'bdd-generate-button';
-                        generateButton.className = 'ai-generator-button';
-                        generateButton.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 mr-2"></i><span>Generate Gherkin</span>`;
-                        buttonContainer.appendChild(generateButton);
-                        detailsField.parentElement.appendChild(buttonContainer);
-                        generateButton.addEventListener('click', handleBddAiGeneration);
-                    }
-                }
-
-
-                const aceField = template.fields.find(f => f.type === 'ace');
-                if (aceField) {
+                if (key === 'BDD') {
                     aceEditor = ace.edit("ace-editor");
                     aceEditor.setTheme("ace/theme/chrome");
                     aceEditor.session.setMode("ace/mode/gherkin");
-                    aceEditor.setValue(aceField.placeholder || '', -1);
-                    aceEditor.setOptions({ fontSize: "14px", showPrintMargin: false });
-                }
-                
-                lucide.createIcons();
-                actionFooter.classList.remove('hidden');
-            }
-            
-            async function handleGenericAiGeneration(buttonId, initialDetailsId, generatedFieldsContainerId, promptBuilder, schema, successMessage, errorMessage, fieldMapping) {
-                const button = document.getElementById(buttonId);
-                const initialDetailsInput = document.getElementById(initialDetailsId);
-                const userInput = initialDetailsInput.value.trim();
-
-                if (!userInput) {
-                    showToast('Please provide an initial overview first.', 'error');
-                    return;
-                }
-
-                button.disabled = true;
-                button.innerHTML = `<span class="loader mr-2"></span><span>Generating...</span>`;
-
-                const prompt = promptBuilder(userInput);
-
-                try {
-                    const payload = {
-                        contents: [{ role: "user", parts: [{ text: prompt }] }],
-                        generationConfig: {
-                            responseMimeType: "application/json",
-                            responseSchema: schema
-                        }
-                    };
-                    const apiKey = ""; // Leave empty
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                    
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                    aceEditor.setOptions({
+                        minLines: 10,
+                        maxLines: 20,
+                        fontSize: 14,
+                        readOnly: false,
+                        wrap: true
                     });
-
-                    if (!response.ok) {
-                        const errorBody = await response.text();
-                        throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorBody}`);
+                    // Set initial placeholder for ACE editor if available in template
+                    const gherkinField = template.fields.find(f => f.id === 'gherkin');
+                    if (gherkinField && gherkinField.placeholder) {
+                        aceEditor.session.setValue(gherkinField.placeholder);
                     }
+                }
 
-                    const result = await response.json();
-                    
-                    if (result.candidates && result.candidates.length > 0) {
-                        const text = result.candidates[0].content.parts[0].text;
-                        const generatedContent = JSON.parse(text);
-
-                        for (const [key, elementId] of Object.entries(fieldMapping)) {
-                             document.getElementById(elementId).value = generatedContent[key] || '';
+                // Add event listener for AI generation button if it exists
+                const generateButton = document.getElementById(`${key.toLowerCase().replace(/\s/g, '')}-generate-button`);
+                if (generateButton) {
+                    generateButton.addEventListener('click', async () => {
+                        const initialInput = document.getElementById(template.fields[0].id).value;
+                        if (!initialInput.trim()) {
+                            showToast('Please provide some initial details to generate content.', 'warning');
+                            return;
                         }
-                        
-                        document.getElementById(generatedFieldsContainerId).style.display = 'block';
-                        showToast(successMessage, 'success');
-                    } else {
-                        throw new Error("No content generated by the API.");
-                    }
-
-                } catch (error) {
-                    console.error(`${errorMessage} Error:`, error);
-                    showToast(`Failed to generate details. Please try again.`, 'error');
-                } finally {
-                    button.disabled = false;
-                    button.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 mr-2"></i><span>Generate Details</span>`;
-                    lucide.createIcons();
-                }
-            }
-            
-            function handleFeatureAiGeneration() {
-                 handleGenericAiGeneration(
-                    'feature-generate-button',
-                    'initialDetails',
-                    'ai-generated-feature-fields',
-                    (userInput) => `Based on the following feature idea, elaborate and generate the content for the specified sections. Generate a concise, descriptive title for the feature as well. Feature Idea: "${userInput}".`,
-                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "problemStatement": { "type": "STRING" }, "featureHypothesis": { "type": "STRING" }, "objectivesKeyResults": { "type": "STRING" }, "keySMEs": { "type": "STRING" }, "nonFunctionalRequirements": { "type": "STRING" }, "externalDependencies": { "type": "STRING" }, "riskReduction": { "type": "STRING" } }, required: ["title", "problemStatement", "featureHypothesis", "objectivesKeyResults", "keySMEs", "nonFunctionalRequirements", "externalDependencies", "riskReduction"] },
-                    'Feature details generated successfully!',
-                    'Feature AI Generation',
-                    { title: 'title', problemStatement: 'problemStatement', featureHypothesis: 'featureHypothesis', objectivesKeyResults: 'objectivesKeyResults', keySMEs: 'keySMEs', nonFunctionalRequirements: 'nonFunctionalRequirements', externalDependencies: 'externalDependencies', riskReduction: 'riskReduction' }
-                );
-            }
-
-            function handleUserStoryAiGeneration() {
-                handleGenericAiGeneration(
-                    'userstory-generate-button',
-                    'initialStoryDetails',
-                    'ai-generated-userstory-fields',
-                     (userInput) => `Based on the following user story idea, generate a structured User Story work item. 1. Create a 'title' following the format '<Application Name> <Verb> <Noun>'. Infer the application name or use a placeholder like 'System' if not obvious. 2. Write the 'userStory' description strictly following the format 'As a [user role], I want [activity], so that [business value].' 3. Write a list of 'acceptanceCriteria' as a multi-line string, with each criterion on a new line. User Story Idea: "${userInput}"`,
-                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "userStory": { "type": "STRING" }, "acceptanceCriteria": { "type": "STRING" } }, required: ["title", "userStory", "acceptanceCriteria"] },
-                    'User Story details generated successfully!',
-                    'User Story AI Generation',
-                    { title: 'title', userStory: 'userStory', acceptanceCriteria: 'acceptanceCriteria' }
-                );
-            }
-
-            function handleRiskAiGeneration() {
-                 handleGenericAiGeneration(
-                    'risk-generate-button',
-                    'initialRiskDetails',
-                    'ai-generated-risk-fields',
-                    (userInput) => `Based on the following risk overview, elaborate and generate the content for a structured risk analysis. Risk Overview: "${userInput}".`,
-                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "riskDescription": { "type": "STRING" }, "riskTrigger": { "type": "STRING" }, "impact": { "type": "STRING" }, "mitigationResponsePlan": { "type": "STRING" } }, required: ["title", "riskDescription", "riskTrigger", "impact", "mitigationResponsePlan"] },
-                    'Risk details generated successfully!',
-                    'Risk AI Generation',
-                    { title: 'title', riskDescription: 'riskDescription', riskTrigger: 'riskTrigger', impact: 'impact', mitigationResponsePlan: 'mitigationResponsePlan' }
-                );
-            }
-
-            function handleImpedimentAiGeneration() {
-                handleGenericAiGeneration(
-                    'impediment-generate-button',
-                    'initialImpedimentDetails',
-                    'ai-generated-impediment-fields',
-                    (userInput) => `Based on the following impediment overview, generate a structured impediment report. Create a concise title that summarizes the issue. Impediment Overview: "${userInput}"`,
-                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "stepsTaken": { "type": "STRING" }, "impact": { "type": "STRING" }, "desiredOutcome": { "type": "STRING" } }, required: ["title", "stepsTaken", "impact", "desiredOutcome"] },
-                    'Impediment details generated successfully!',
-                    'Impediment AI Generation',
-                    { title: 'title', stepsTaken: 'stepsTaken', impact: 'impact', desiredOutcome: 'desiredOutcome' }
-                );
-            }
-
-            function handleSpikeAiGeneration() {
-                handleGenericAiGeneration(
-                    'spike-generate-button',
-                    'initialSpikeDetails',
-                    'ai-generated-spike-fields',
-                    (userInput) => `Based on the following research overview, generate a structured Spike plan. Create a concise title that summarizes the research goal. Research Overview: "${userInput}"`,
-                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "scenario": { "type": "STRING" }, "purpose": { "type": "STRING" }, "tasks": { "type": "STRING" } }, required: ["title", "scenario", "purpose", "tasks"] },
-                    'Spike details generated successfully!',
-                    'Spike AI Generation',
-                    { title: 'title', scenario: 'scenario', purpose: 'purpose', tasks: 'tasks' }
-                );
-            }
-            
-            function handleDecisionAiGeneration() {
-                handleGenericAiGeneration(
-                    'decision-generate-button',
-                    'initialDecisionDetails',
-                    'ai-generated-decision-fields',
-                    (userInput) => `Based on the following decision overview, generate a structured decision log. Create a concise title that summarizes the decision. Decision Overview: "${userInput}"`,
-                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "contextProblem": { "type": "STRING" }, "currentState": { "type": "STRING" }, "proposedState": { "type": "STRING" }, "possibleBenefits": { "type": "STRING" }, "possibleRisks": { "type": "STRING" } }, required: ["title", "contextProblem", "currentState", "proposedState", "possibleBenefits", "possibleRisks"] },
-                    'Decision details generated successfully!',
-                    'Decision AI Generation',
-                    { title: 'title', contextProblem: 'contextProblem', currentState: 'currentState', proposedState: 'proposedState', possibleBenefits: 'possibleBenefits', possibleRisks: 'possibleRisks' }
-                );
-            }
-            
-            function handleTeamPIObjectiveAiGeneration() {
-                handleGenericAiGeneration(
-                    'teampiobjective-generate-button',
-                    'initialTeamPIObjectiveDetails',
-                    'ai-generated-teampiobjective-fields',
-                    (userInput) => `Based on the following overview, generate a structured Team PI Objective. The title must follow the format '[Team Name] will [action verb] [what / summary of features]'. The description must follow the format '[Team Name] will [action verb] [what / summary of features] by [deadline] so that [who / customer / business] will [action verb] [value purpose].' Overview: "${userInput}"`,
-                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "description": { "type": "STRING" } }, required: ["title", "description"] },
-                    'Team PI Objective details generated successfully!',
-                    'Team PI Objective AI Generation',
-                    { title: 'title', description: 'description' }
-                );
-            }
-
-            function handleTeamIterationGoalAiGeneration() {
-                handleGenericAiGeneration(
-                    'teamiterationgoal-generate-button',
-                    'initialTeamIterationGoalDetails',
-                    'ai-generated-teamiterationgoal-fields',
-                    (userInput) => `Based on the following overview, generate a structured Team Iteration Goal. Create a concise title that summarizes the goal. Overview: "${userInput}"`,
-                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "goal": { "type": "STRING" }, "outcome": { "type": "STRING" }, "valueAdded": { "type": "STRING" } }, required: ["title", "goal", "outcome", "valueAdded"] },
-                    'Team Iteration Goal details generated successfully!',
-                    'Team Iteration Goal AI Generation',
-                    { title: 'title', goal: 'goal', outcome: 'outcome', valueAdded: 'valueAdded' }
-                );
-            }
-
-            function handleProgramPIObjectiveAiGeneration() {
-                handleGenericAiGeneration(
-                    'programpiobjective-generate-button',
-                    'initialProgramPIObjectiveDetails',
-                    'ai-generated-programpiobjective-fields',
-                    (userInput) => `Based on the following overview, generate a structured Program PI Objective. Create a concise title. Describe the business value as a number from 1 to 10. List associated features. Overview: "${userInput}"`,
-                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "description": { "type": "STRING" }, "businessValue": { "type": "NUMBER" }, "associatedFeatures": { "type": "STRING" } }, required: ["title", "description", "businessValue", "associatedFeatures"] },
-                    'Program PI Objective details generated successfully!',
-                    'Program PI Objective AI Generation',
-                    { title: 'title', description: 'description', businessValue: 'businessValue', associatedFeatures: 'associatedFeatures' }
-                );
-            }
-
-            async function handleBddAiGeneration() {
-                const button = document.getElementById('bdd-generate-button');
-                const detailsInput = document.getElementById('scenarioDetails');
-                const details = detailsInput.value.trim();
-
-                if (!details) {
-                    showToast('Please provide details for the scenario.', 'error');
-                    return;
-                }
-
-                if (!aceEditor) {
-                    showToast('Gherkin editor is not ready.', 'error');
-                    return;
-                }
-
-                button.disabled = true;
-                button.innerHTML = `<span class="loader mr-2"></span><span>Generating...</span>`;
-
-                const prompt = `Based on the following scenario details, generate a complete Gherkin script using the "Given-When-Then" format. The output must be only the Gherkin code. Infer a suitable title for the "Feature:" and "Scenario:" lines from the details provided.\n\nScenario Details: "${details}"`;
-
-                try {
-                    const payload = {
-                        contents: [{ role: "user", parts: [{ text: prompt }] }]
-                    };
-                    const apiKey = ""; // Leave empty
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                    
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                        await generateAIContent(key, initialInput, generateButton);
                     });
-
-                    if (!response.ok) {
-                        const errorBody = await response.text();
-                        throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorBody}`);
-                    }
-
-                    const result = await response.json();
-                    
-                    if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts[0].text) {
-                        const generatedGherkin = result.candidates[0].content.parts[0].text.trim();
-                        aceEditor.setValue(generatedGherkin, -1);
-                        showToast('Gherkin scenario generated successfully!', 'success');
-                    } else {
-                        throw new Error("No content generated by the API.");
-                    }
-
-                } catch (error) {
-                    console.error('BDD AI Generation Error:', error);
-                    showToast('Failed to generate Gherkin script. Please try again.', 'error');
-                    aceEditor.setValue(`---\n-- Error during generation.\n-- Please check the console for details.\n---`);
-                } finally {
-                    button.disabled = false;
-                    button.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 mr-2"></i><span>Generate Gherkin</span>`;
-                    lucide.createIcons();
                 }
-            }
-
-            function generateOutputText() {
-                if (!currentActiveTemplate) return '';
-                const template = templates[currentActiveTemplate];
-                let output = `WORK ITEM: ${template.title.toUpperCase()}\n`;
-                output += `========================================\n\n`;
-
-                template.fields.forEach(field => {
-                    const initialFieldIds = ['initialDetails', 'scenarioDetails', 'initialRiskDetails', 'initialStoryDetails', 'initialImpedimentDetails', 'initialSpikeDetails', 'initialDecisionDetails', 'initialTeamPIObjectiveDetails', 'initialTeamIterationGoalDetails', 'initialProgramPIObjectiveDetails'];
-                    if (initialFieldIds.includes(field.id)) {
-                        return;
-                    }
-
-                    let value;
-                    if (field.type === 'ace' && aceEditor) {
-                        value = aceEditor.getValue();
-                    } else {
-                        const input = document.getElementById(field.id);
-                        if(input) value = input.value;
-                    }
-                    
-                    output += `** ${field.label} **\n${value || '(Not provided)'}\n\n`;
-                });
-                return output;
             }
 
             function showToast(message, type = 'success') {
                 toastMessage.textContent = message;
-                toastNotification.className = 'toast fixed bottom-10 right-10 px-6 py-3 rounded-lg shadow-lg z-50'; // reset classes
-                if (type === 'error') {
-                     toastNotification.classList.add('bg-red-600', 'text-white');
-                } else if (type === 'info') {
-                     toastNotification.classList.add('bg-blue-600', 'text-white');
+                toastNotification.className = 'toast fixed bottom-10 right-10 px-6 py-3 rounded-lg shadow-lg z-50'; // Reset classes
+                if (type === 'success') {
+                    toastNotification.classList.add('bg-green-600', 'text-white');
+                } else if (type === 'error') {
+                    toastNotification.classList.add('bg-red-600', 'text-white');
+                } else if (type === 'warning') {
+                    toastNotification.classList.add('bg-yellow-600', 'text-white');
                 } else {
-                     toastNotification.classList.add('bg-gray-900', 'text-white');
+                    toastNotification.classList.add('bg-gray-900', 'text-white');
                 }
                 toastNotification.classList.add('show');
                 setTimeout(() => {
                     toastNotification.classList.remove('show');
                 }, 3000);
             }
-            
-            function generateAdoPayload() {
-                if (!currentActiveTemplate) return null;
 
-                const template = templates[currentActiveTemplate];
-                const titleField = template.fields.find(f => f.id === 'title' || f.id === 'scenarioTitle');
-                const title = titleField ? document.getElementById(titleField.id).value : 'Generated Work Item';
-                
-                let description = '';
-                template.fields.forEach(field => {
-                    const initialFieldIds = ['initialDetails', 'scenarioDetails', 'initialRiskDetails', 'initialStoryDetails', 'initialImpedimentDetails', 'initialSpikeDetails', 'initialDecisionDetails', 'initialTeamPIObjectiveDetails', 'initialTeamIterationGoalDetails', 'initialProgramPIObjectiveDetails', 'title', 'scenarioTitle'];
-                    if (initialFieldIds.includes(field.id)) {
-                        return;
+            async function generateAIContent(templateKey, initialInput, buttonElement) {
+                buttonElement.disabled = true;
+                buttonElement.innerHTML = `<span class="loader mr-2"></span> Generating...`;
+                const generatedContainerId = `ai-generated-${templateKey.toLowerCase().replace(/\s/g, '')}-fields`;
+                const generatedContainer = document.getElementById(generatedContainerId);
+
+                try {
+                    let prompt = '';
+                    let schema = {};
+
+                    switch (templateKey) {
+                        case 'Feature':
+                            prompt = `Generate a comprehensive Azure DevOps Feature work item in JSON format based on the following high-level idea: "${initialInput}". Ensure all fields are populated with detailed and relevant information. The JSON object must include the following keys: "title" (concise summary), "problemStatement" (detailed explanation of the problem), "featureHypothesis" (testable assumption about the feature's impact), "objectivesKeyResults" (measurable goals and outcomes), "keySMEs" (relevant subject matter experts), "nonFunctionalRequirements" (performance, security, usability, etc.), "externalDependencies" (any external systems or teams), and "riskReduction" (how this feature mitigates risks or enables opportunities). The response MUST be a pure JSON object, with no surrounding text or markdown formatting.`;
+                            schema = {
+                                type: "OBJECT",
+                                properties: {
+                                    title: { type: "STRING" },
+                                    problemStatement: { type: "STRING" },
+                                    featureHypothesis: { type: "STRING" },
+                                    objectivesKeyResults: { type: "STRING" },
+                                    keySMEs: { type: "STRING" },
+                                    nonFunctionalRequirements: { type: "STRING" },
+                                    externalDependencies: { type: "STRING" },
+                                    riskReduction: { type: "STRING" }
+                                }
+                            };
+                            break;
+                        case 'User Story':
+                            prompt = `Generate a complete Azure DevOps User Story in JSON format based on the following user need: "${initialInput}". Ensure all fields are fully detailed. The JSON object must include: "title" (a concise summary), "userStory" (formatted as "As a [role], I want [goal] so that [reason]"), "acceptanceCriteria" (a detailed, bulleted list of criteria), "storyPoints" (a numerical estimate), and "parentFeature" (a placeholder for the parent Feature ID/Title). The response MUST be a pure JSON object, with no surrounding text or markdown formatting.`;
+                            schema = {
+                                type: "OBJECT",
+                                properties: {
+                                    title: { type: "STRING" },
+                                    userStory: { type: "STRING" },
+                                    acceptanceCriteria: { type: "STRING" },
+                                    storyPoints: { type: "NUMBER" },
+                                    parentFeature: { type: "STRING" }
+                                }
+                            };
+                            break;
+                        case 'BDD':
+                            prompt = `Convert the following scenario description into Gherkin syntax (Given, When, Then): "${initialInput}". Ensure the output is a valid Gherkin scenario. Only provide the Gherkin text, with no surrounding text or markdown formatting.`;
+                            // BDD is special, it doesn't return JSON, it returns plain text Gherkin.
+                            // The schema will be handled by checking templateKey === 'BDD'
+                            break;
+                        case 'Risk':
+                            prompt = `Generate a comprehensive Azure DevOps Risk work item in JSON format based on the following potential risk: "${initialInput}". Ensure all fields are populated with detailed and relevant information. The JSON object must include the following keys: "title" (concise summary), "riskDescription" (detailed explanation of the risk), "riskTrigger" (what event or condition causes the risk), "impact" (the consequences if the risk occurs), and "mitigationResponsePlan" (steps to reduce or respond to the risk). The response MUST be a pure JSON object, with no surrounding text or markdown formatting.`;
+                            schema = {
+                                type: "OBJECT",
+                                properties: {
+                                    title: { type: "STRING" },
+                                    riskDescription: { type: "STRING" },
+                                    riskTrigger: { type: "STRING" },
+                                    impact: { type: "STRING" },
+                                    mitigationResponsePlan: { type: "STRING" }
+                                }
+                            };
+                            break;
+                        case 'Impediment':
+                            prompt = `Generate a detailed Azure DevOps Impediment work item in JSON format based on the following blocker: "${initialInput}". Ensure all fields are populated with detailed and relevant information. The JSON object must include the following keys: "title" (concise summary), "stepsTaken" (actions already taken to resolve it), "impact" (how the impediment affects progress), and "desiredOutcome" (what needs to happen to resolve it). The response MUST be a pure JSON object, with no surrounding text or markdown formatting.`;
+                            schema = {
+                                type: "OBJECT",
+                                properties: {
+                                    title: { type: "STRING" },
+                                    stepsTaken: { type: "STRING" },
+                                    impact: { type: "STRING" },
+                                    desiredOutcome: { type: "STRING" }
+                                }
+                            };
+                            break;
+                        case 'Spike':
+                            prompt = `Generate a detailed Azure DevOps Spike work item in JSON format based on the following research need: "${initialInput}". Ensure all fields are populated with detailed and relevant information. The JSON object must include the following keys: "title" (concise summary), "scenario" (the context for the research), "purpose" (why this research is needed), and "tasks" (a detailed list of steps to perform during the spike). The response MUST be a pure JSON object, with no surrounding text or markdown formatting.`;
+                            schema = {
+                                type: "OBJECT",
+                                properties: {
+                                    title: { type: "STRING" },
+                                    scenario: { type: "STRING" },
+                                    purpose: { type: "STRING" },
+                                    tasks: { type: "STRING" }
+                                }
+                            };
+                            break;
+                        case 'Decision':
+                            prompt = `Generate a detailed Azure DevOps Decision work item in JSON format based on the following problem/context: "${initialInput}". Ensure all fields are populated with detailed and relevant information. The JSON object must include the following keys: "title" (concise summary), "contextProblem" (the situation or problem requiring a decision), "currentState" (the current status or setup), "proposedState" (the desired outcome or alternative), "possibleBenefits" (advantages of the proposed state), and "possibleRisks" (disadvantages or potential issues of the proposed state). The response MUST be a pure JSON object, with no surrounding text or markdown formatting.`;
+                            schema = {
+                                type: "OBJECT",
+                                properties: {
+                                    title: { type: "STRING" },
+                                    contextProblem: { type: "STRING" },
+                                    currentState: { type: "STRING" },
+                                    proposedState: { type: "STRING" },
+                                    possibleBenefits: { type: "STRING" },
+                                    possibleRisks: { type: "STRING" }
+                                }
+                            };
+                            break;
+                        case 'Team PI Objective':
+                            prompt = `Generate a detailed Azure DevOps Team PI Objective in JSON format based on the following: "${initialInput}". Ensure both fields are fully detailed. The JSON object must include: "title" (formatted as "[Team Name] will [action verb] [what / summary of features]."), and "description" (formatted as "[Team Name] will [action verb] [what / summary of features] by [deadline] so that [who / customer / business] will [action verb] [value purpose]."). The response MUST be a pure JSON object, with no surrounding text or markdown formatting.`;
+                            schema = {
+                                type: "OBJECT",
+                                properties: {
+                                    title: { type: "STRING" },
+                                    description: { type: "STRING" }
+                                }
+                            };
+                            break;
+                        case 'Team Iteration Goal':
+                            prompt = `Generate a detailed Azure DevOps Team Iteration Goal in JSON format based on the following: "${initialInput}". Ensure all fields are fully detailed. The JSON object must include: "title" (a concise summary), "goal" (the specific objective for the iteration), "outcome" (the expected results of achieving the goal), and "valueAdded" (the benefit delivered by this goal). The response MUST be a pure JSON object, with no surrounding text or markdown formatting.`;
+                            schema = {
+                                type: "OBJECT",
+                                properties: {
+                                    title: { type: "STRING" },
+                                    goal: { type: "STRING" },
+                                    outcome: { type: "STRING" },
+                                    valueAdded: { type: "STRING" }
+                                }
+                            };
+                            break;
+                        case 'Program PI Objective':
+                            prompt = `Generate a detailed Azure DevOps Program PI Objective in JSON format based on the following: "${initialInput}". Ensure all fields are fully detailed. The JSON object must include: "title" (a concise summary), "description" (a detailed explanation of the objective), "businessValue" (a numerical estimate from 1 to 10), and "associatedFeatures" (a list of related Feature IDs or titles). The response MUST be a pure JSON object, with no surrounding text or markdown formatting.`;
+                            schema = {
+                                type: "OBJECT",
+                                properties: {
+                                    title: { type: "STRING" },
+                                    description: { type: "STRING" },
+                                    businessValue: { type: "NUMBER" },
+                                    associatedFeatures: { type: "STRING" }
+                                }
+                            };
+                            break;
+                        default:
+                            throw new Error('Unknown template key for AI generation.');
                     }
 
-                    let value;
-                     if (field.type === 'ace' && aceEditor) {
-                        value = aceEditor.getValue();
+                    let chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+
+                    const apiKey = ""; // If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                    const payload = { contents: chatHistory };
+                    if (templateKey !== 'BDD') { // BDD returns plain text, not JSON
+                        payload.generationConfig = {
+                            responseMimeType: "application/json",
+                            responseSchema: schema
+                        };
+                    }
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+
+                        let rawContent = result.candidates[0].content.parts[0].text;
+                        console.log("Raw AI Response:", rawContent); // Log the raw response for debugging
+
+                        // Pre-process: Remove markdown code fences if present
+                        if (rawContent.startsWith('```json') && rawContent.endsWith('```')) {
+                            rawContent = rawContent.substring(7, rawContent.length - 3).trim();
+                        } else if (rawContent.startsWith('```') && rawContent.endsWith('```')) {
+                             // Catch generic code blocks too, if AI doesn't specify 'json'
+                            rawContent = rawContent.substring(3, rawContent.length - 3).trim();
+                        }
+
+
+                        if (templateKey === 'BDD') {
+                            if (aceEditor) {
+                                aceEditor.session.setValue(rawContent);
+                            }
+                        } else {
+                            try {
+                                const generatedData = JSON.parse(rawContent);
+                                templates[templateKey].fields.slice(1).forEach(field => {
+                                    const element = document.getElementById(field.id);
+                                    if (element && generatedData[field.id] !== undefined) {
+                                        element.value = generatedData[field.id];
+                                    }
+                                });
+                                if (generatedContainer) {
+                                    generatedContainer.style.display = 'block'; // Show the generated fields
+                                }
+                            } catch (jsonParseError) {
+                                console.error("Error parsing JSON response from AI:", jsonParseError, "Raw content (after pre-processing):", rawContent);
+                                showToast('Error: AI response was not valid JSON. Please try again.', 'error');
+                                return; // Stop further processing if JSON parsing fails
+                            }
+                        }
+                        showToast('Content generated successfully!');
                     } else {
-                        const input = document.getElementById(field.id);
-                        if(input) value = input.value;
+                        showToast('Error: Could not generate content. Please try again.', 'error');
+                        console.error("AI generation failed:", result);
                     }
-                    
-                    description += `<h3>${field.label}</h3><p>${(value || '(Not provided)').replace(/\n/g, '<br>')}</p>`;
-                });
-                
-                const workItemTypeMap = {
-                    'Feature': 'Feature',
-                    'User Story': 'User Story',
-                    'BDD': 'Test Case',
-                    'Risk': 'Issue',
-                    'Impediment': 'Impediment',
-                    'Spike': 'Task',
-                    'Decision': 'Issue',
-                    'Team PI Objective': 'Objective',
-                    'Team Iteration Goal': 'Task',
-                    'Program PI Objective': 'Objective'
-                };
-                const workItemType = workItemTypeMap[currentActiveTemplate] || 'Task';
-                
-                return [
-                    {
-                        "op": "add",
-                        "path": "/fields/System.Title",
-                        "value": title
-                    },
-                    {
-                        "op": "add",
-                        "path": "/fields/System.Description",
-                        "value": description
-                    }
-                ];
+
+                } catch (error) {
+                    console.error("Error during AI content generation:", error);
+                    showToast('Error generating content. Please check your input or try again later.', 'error');
+                } finally {
+                    buttonElement.disabled = false;
+                    buttonElement.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 mr-2"></i><span>Generate Details</span>`;
+                    lucide.createIcons(); // Re-render icons after changing innerHTML
+                }
             }
 
-            function handleCreateInAdo() {
+            function collectFormData() {
+                const formData = {};
+                if (!currentActiveTemplate) return formData;
+
+                const templateFields = templates[currentActiveTemplate].fields;
+                templateFields.forEach(field => {
+                    if (field.id === 'gherkin' && aceEditor) {
+                        formData[field.id] = aceEditor.getValue();
+                    } else {
+                        const element = document.getElementById(field.id);
+                        if (element) {
+                            formData[field.id] = element.value;
+                        }
+                    }
+                });
+                return formData;
+            }
+
+            function resetTemplate() {
+                if (!currentActiveTemplate) return;
+
+                const template = templates[currentActiveTemplate];
+                template.fields.forEach(field => {
+                    if (field.id === 'gherkin' && aceEditor) {
+                        aceEditor.session.setValue(field.placeholder || '');
+                    } else {
+                        const element = document.getElementById(field.id);
+                        if (element) {
+                            element.value = '';
+                        }
+                    }
+                });
+
+                // Hide generated fields for AI templates
+                const generatedContainerId = `ai-generated-${currentActiveTemplate.toLowerCase().replace(/\s/g, '')}-fields`;
+                const generatedContainer = document.getElementById(generatedContainerId);
+                if (generatedContainer) {
+                    generatedContainer.style.display = 'none';
+                }
+
+                showToast('Template reset successfully!');
+            }
+
+            // --- Event Listeners ---
+            configButton.addEventListener('click', () => {
+                configModal.classList.add('show');
+                renderConfigEditors();
+            });
+
+            closeConfigModalButton.addEventListener('click', () => {
+                configModal.classList.remove('show');
+            });
+
+            closeModalAdoButton.addEventListener('click', () => {
+                adoModal.classList.remove('show');
+            });
+
+            saveConfigButton.addEventListener('click', () => {
+                saveTemplatesFromEditors();
+                configModal.classList.remove('show');
+                renderMenu(); // Re-render menu in case titles changed
+            });
+
+            copyButton.addEventListener('click', () => {
+                const formData = collectFormData();
+                let output = '';
+
+                if (currentActiveTemplate === 'BDD') {
+                    output = formData.gherkin || '';
+                } else {
+                    // For other templates, format as readable text or JSON
+                    output = JSON.stringify(formData, null, 2);
+                }
+
+                if (output) {
+                    // Use a temporary textarea to copy to clipboard
+                    const tempTextArea = document.createElement('textarea');
+                    tempTextArea.value = output;
+                    document.body.appendChild(tempTextArea);
+                    tempTextArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempTextArea);
+                    showToast('Output copied to clipboard!');
+                } else {
+                    showToast('No content to copy.', 'warning');
+                }
+            });
+
+            resetButton.addEventListener('click', resetTemplate);
+
+            adoButton.addEventListener('click', () => {
+                adoModal.classList.add('show');
+            });
+
+            createAdoWorkItemButton.addEventListener('click', () => {
                 const org = document.getElementById('ado-org').value;
                 const project = document.getElementById('ado-project').value;
                 const pat = document.getElementById('ado-pat').value;
+                const formData = collectFormData();
 
                 if (!org || !project || !pat) {
-                    showToast('Please fill in all ADO fields.', 'error');
+                    showToast('Please fill in Organization, Project, and PAT.', 'warning');
                     return;
                 }
 
-                const payload = generateAdoPayload();
-                if (!payload) {
-                    showToast('Could not generate work item data.', 'error');
-                    return;
-                }
-                
-                const workItemTypeMap = { 'Feature': 'Feature', 'User Story': 'User Story', 'BDD': 'Test Case', 'Risk': 'Issue', 'Impediment': 'Impediment', 'Spike': 'Task', 'Decision': 'Issue', 'Team PI Objective': 'Objective', 'Team Iteration Goal': 'Task', 'Program PI Objective': 'Objective' };
-                const workItemType = workItemTypeMap[currentActiveTemplate] || 'Task';
-                const apiUrl = `https://dev.azure.com/${org}/${project}/_apis/wit/workitems/$${workItemType}?api-version=7.1-preview.3`;
+                // Simulate ADO creation (in a real app, this would be an API call)
+                console.log('Simulating ADO Work Item Creation:');
+                console.log('Organization:', org);
+                console.log('Project:', project);
+                console.log('PAT (not sent in real app):', pat ? '********' : 'N/A');
+                console.log('Work Item Type:', currentActiveTemplate);
+                console.log('Work Item Data:', formData);
 
-                console.log("--- SIMULATED ADO API CALL ---");
-                console.log("This request was NOT actually sent. This is a simulation for demonstration purposes.");
-                console.log("URL:", apiUrl);
-                console.log("Method: POST");
-                console.log("Headers:", {
-                    'Content-Type': 'application/json-patch+json',
-                    'Authorization': 'Basic ' + btoa("" + ":" + pat)
-                });
-                console.log("Body (Payload):", JSON.stringify(payload, null, 2));
-                
+                showToast('Simulated ADO Work Item creation successfully!', 'success');
                 adoModal.classList.remove('show');
-                showToast('Work item creation simulated. Check the developer console for details.', 'info');
+            });
+
+
+            // --- Configuration Modal Functions ---
+            let aceConfigEditors = {}; // Store ACE editor instances for config modal
+
+            function renderConfigEditors() {
+                jsonEditorsContainer.innerHTML = '';
+                aceConfigEditors = {}; // Reset editors
+
+                for (const key in templates) {
+                    const template = templates[key];
+                    const editorId = `config-editor-${key}`;
+                    const editorDiv = document.createElement('div');
+                    editorDiv.className = 'bg-gray-50 p-4 rounded-lg border border-gray-200';
+                    editorDiv.innerHTML = `
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">${template.title} Template Configuration</h4>
+                        <div id="${editorId}" class="w-full h-64 border border-gray-300 rounded-md"></div>
+                    `;
+                    jsonEditorsContainer.appendChild(editorDiv);
+
+                    const editor = ace.edit(editorId);
+                    editor.setTheme("ace/theme/chrome");
+                    editor.session.setMode("ace/mode/json");
+                    editor.setOptions({
+                        fontSize: 13,
+                        tabSize: 2,
+                        useSoftTabs: true,
+                        wrap: true
+                    });
+                    editor.session.setValue(JSON.stringify(template, null, 2));
+                    aceConfigEditors[key] = editor;
+                }
             }
 
+            function saveTemplatesFromEditors() {
+                let allValid = true;
+                const newTemplates = {};
 
-            // --- Event Listeners ---
-
-            copyButton.addEventListener('click', () => {
-                const textToCopy = generateOutputText();
-                 if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(textToCopy)
-                        .then(() => showToast('Copied to clipboard!'))
-                        .catch(() => showToast('Failed to copy.', 'error'));
-                } else {
-                    const textArea = document.createElement("textarea");
-                    textArea.value = textToCopy;
-                    textArea.style.position = "fixed";
-                    textArea.style.left = "-999999px";
-                    document.body.appendChild(textArea);
-                    textArea.focus();
-                    textArea.select();
+                for (const key in aceConfigEditors) {
                     try {
-                        document.execCommand('copy');
-                        showToast('Copied to clipboard!');
-                    } catch (err) {
-                        showToast('Failed to copy.', 'error');
-                    }
-                    document.body.removeChild(textArea);
-                }
-            });
-
-            resetButton.addEventListener('click', () => {
-                if (currentActiveTemplate) {
-                    renderTemplate(currentActiveTemplate);
-                    showToast('Form has been reset.');
-                }
-            });
-
-            adoButton.addEventListener('click', () => {
-                if(!currentActiveTemplate) {
-                    showToast('Please select a template first.', 'error');
-                    return;
-                }
-                adoModal.classList.add('show');
-                lucide.createIcons(); // Re-render icons inside the modal
-            });
-            
-            createAdoWorkItemButton.addEventListener('click', handleCreateInAdo);
-
-            configButton.addEventListener('click', () => {
-                configModal.classList.add('show');
-                jsonEditorsContainer.innerHTML = '';
-                Object.keys(templates).forEach(key => {
-                    const editorHTML = `
-                        <div>
-                            <h4 class="text-lg font-semibold mb-2">${templates[key].title}</h4>
-                            <textarea id="json-editor-${key}" class="w-full h-64 p-2 font-mono text-sm border border-gray-300 rounded-md">${JSON.stringify(templates[key], null, 2)}</textarea>
-                        </div>
-                    `;
-                    jsonEditorsContainer.innerHTML += editorHTML;
-                });
-            });
-
-            closeConfigModalButton.addEventListener('click', () => configModal.classList.remove('show'));
-            closeModalAdoButton.addEventListener('click', () => adoModal.classList.remove('show'));
-            
-            saveConfigButton.addEventListener('click', () => {
-                try {
-                    const newTemplates = {};
-                    let parseError = false;
-                    Object.keys(templates).forEach(key => {
-                        if (parseError) return;
-                        const editor = document.getElementById(`json-editor-${key}`);
-                        try {
-                            newTemplates[key] = JSON.parse(editor.value);
-                        } catch(e) {
-                            showToast(`Invalid JSON for template: ${templates[key].title}`, 'error');
-                            console.error(`Parsing error for ${key}:`, e);
-                            parseError = true;
+                        const editor = aceConfigEditors[key];
+                        const editorContent = editor.getValue();
+                        const parsedContent = JSON.parse(editorContent);
+                        // Basic validation: ensure it's an object and has 'title' and 'fields'
+                        if (typeof parsedContent !== 'object' || parsedContent === null || !parsedContent.title || !Array.isArray(parsedContent.fields)) {
+                            throw new Error('Invalid template structure: missing title or fields array.');
                         }
-                    });
-
-                    if (!parseError) {
-                        templates = newTemplates;
-                        saveTemplates();
-                        configModal.classList.remove('show');
-                        renderMenu();
-                        if (currentActiveTemplate && templates[currentActiveTemplate]) {
-                            renderTemplate(currentActiveTemplate);
-                        } else if (currentActiveTemplate) {
-                            templateContainer.innerHTML = `<div class="text-center p-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50"><div id="welcome-icon" class="mx-auto h-12 w-12 text-gray-400"><i data-lucide="layout-template" class="w-full h-full"></i></div><h3 class="mt-2 text-lg font-medium text-gray-900">Template no longer exists</h3><p class="mt-1 text-sm text-gray-500">The previously selected template has been removed. Please select another.</p></div>`;
-                            actionFooter.classList.add('hidden');
-                            currentActiveTemplate = null;
-                        }
+                        newTemplates[key] = parsedContent;
+                    } catch (e) {
+                        allValid = false;
+                        console.error(`Error parsing JSON for ${key} template:`, e);
+                        showToast(`Error in ${key} template configuration: ${e.message}`, 'error');
+                        // Do not break, try to parse other templates
                     }
-                } catch (e) {
-                     showToast('An unexpected error occurred while saving.', 'error');
-                     console.error(e);
                 }
-            });
 
-            // --- App Kickoff ---
+                if (allValid) {
+                    templates = newTemplates;
+                    saveTemplates(); // This will show the success toast
+                } else {
+                    showToast('Errors found in configuration. Some changes might not be saved.', 'error');
+                }
+            }
+
+            // --- Initialize the App ---
             initApp();
         });
     </script>
