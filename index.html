@@ -640,7 +640,7 @@
                     let chatHistory = [];
                     chatHistory.push({ role: "user", parts: [{ text: prompt }] });
 
-                    const apiKey = ""; // If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
+                    const apiKey = "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"; // If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
                     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                     const payload = { contents: chatHistory };
