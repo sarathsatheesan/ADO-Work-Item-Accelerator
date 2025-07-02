@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADO Work Item Accelerator - AWiA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.2/ace.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .menu-button { transition: all 0.2s ease-in-out; }
+        .menu-button.active { background-color: #2563eb; color: white; }
+        .menu-button:not(.active):hover { background-color: #e2e8f0; }
+        .modal { display: none; transition: opacity 0.3s ease; }
+        .modal.show { display: flex; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .toast { visibility: hidden; opacity: 0; transition: opacity 0.5s, visibility 0.5s, transform 0.5s; transform: translateY(20px); }
+        .toast.show { visibility: visible; opacity: 1; transform: translateY(0); }
+        #ace-editor { width: 100%; height: 300px; border-radius: 0.5rem; border: 1px solid #d1d5db; }
+        .ai-generator-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            background-color: #4f46e5;
+            color: white;
+            font-weight: 600;
+            border-radius: 0.375rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: background-color 0.2s;
+        }
+        .ai-generator-button:hover { background-color: #4338ca; }
+        .ai-generator-button:disabled { background-color: #a5b4fc; cursor: not-allowed; }
+        .loader {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #fff;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #ai-generated-fields, #ai-generated-risk-fields, #ai-generated-story-fields, #ai-generated-impediment-fields, #ai-generated-spike-fields, #ai-generated-decision-fields, #ai-generated-teampiobjective-fields, #ai-generated-teamiterationgoal-fields, #ai-generated-programpiobjective-fields { display: none; }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div id="app-container" class="flex flex-col md:flex-row h-screen">
+
+        <main class="flex-1 p-6 md:p-8 lg:p-10 bg-white overflow-y-auto">
+            <header class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">ADO Work Item Accelerator - AWiA</h1>
+                <p class="text-gray-600 mt-2">A smart front-end for Azure DevOps. Select a work item from the menu to generate a standardized template, including a specialized editor for BDD scenarios and AI-powered content generation for Features.</p>
+            </header>
+            
+            <div id="template-container" class="fade-in">
+                 <div class="text-center p-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                    <div id="welcome-icon" class="mx-auto h-12 w-12 text-gray-400"></div>
+                    <h3 class="mt-2 text-lg font-medium text-gray-900">Welcome to the Accelerator</h3>
+                    <p class="mt-1 text-sm text-gray-500">Select a template from the right to begin.</p>
+                </div>
+            </div>
+
+            <footer id="action-footer" class="mt-8 pt-6 border-t border-gray-200 hidden">
+                 <div class="flex items-center justify-end space-x-4">
+                    <button id="copy-button" class="flex items-center px-4 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        <div id="copy-icon" class="w-5 h-5 mr-2"></div>
+                        Copy Output
+                    </button>
+                    <button id="reset-button" class="flex items-center px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
+                        <div id="reset-icon" class="w-5 h-5 mr-2"></div>
+                        Reset
+                    </button>
+                    <button id="ado-button" class="flex items-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <div id="ado-icon" class="w-5 h-5 mr-2"></div>
+                        Create in ADO
+                    </button>
+                </div>
+            </footer>
+        </main>
+
+        <aside class="w-full md:w-72 bg-[#f8fafc] p-6 border-l border-gray-200">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold">Work Items</h2>
+                 <button id="config-button" title="Configure Templates" class="text-gray-500 hover:text-blue-600">
+                     <div id="settings-icon"></div>
+                </button>
+            </div>
+            <nav id="menu-container" class="space-y-2">
+                </nav>
+        </aside>
+    </div>
+
+    <div id="config-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 pb-4 border-b">
+                <h3 class="text-2xl font-bold">Configure Templates</h3>
+                <button id="close-config-modal-button" class="text-gray-500 hover:text-red-600">
+                     <div id="close-icon-config"></div>
+                </button>
+            </div>
+            <div id="modal-content" class="overflow-y-auto flex-grow pr-2">
+                 <p class="text-sm text-gray-600 mb-4">Edit the JSON configuration for each template below. Changes are saved to your browser's local storage.</p>
+                 <div id="json-editors" class="space-y-6"></div>
+            </div>
+            <div class="mt-6 pt-4 border-t flex justify-end">
+                <button id="save-config-button" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="ado-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold">Create in Azure DevOps</h3>
+                <button id="close-ado-modal-button" class="text-gray-500 hover:text-red-600">
+                     <div id="close-icon-ado"></div>
+                </button>
+            </div>
+            <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md mb-6" role="alert">
+                <div class="flex">
+                    <div class="py-1"><i data-lucide="alert-triangle" class="h-6 w-6 text-yellow-500 mr-4"></i></div>
+                    <div>
+                        <p class="font-bold">Security Warning</p>
+                        <p class="text-sm">This is for demonstration only. Never enter real Personal Access Tokens (PATs) into a front-end application in a production environment. A secure back-end server is required for production use.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label for="ado-org" class="block text-sm font-medium text-gray-700">Organization</label>
+                    <input type="text" id="ado-org" placeholder="e.g., your-org-name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="ado-project" class="block text-sm font-medium text-gray-700">Project</label>
+                    <input type="text" id="ado-project" placeholder="e.g., YourProject" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="ado-pat" class="block text-sm font-medium text-gray-700">Personal Access Token (PAT)</label>
+                    <input type="password" id="ado-pat" placeholder="Enter your PAT" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+            <div class="mt-8 flex justify-end">
+                <button id="create-ado-work-item-button" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Simulate Creation
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="toast-notification" class="toast fixed bottom-10 right-10 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+        <p id="toast-message"></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Element Selection ---
+            const templateContainer = document.getElementById('template-container');
+            const menuContainer = document.getElementById('menu-container');
+            const actionFooter = document.getElementById('action-footer');
+            const configButton = document.getElementById('config-button');
+            const configModal = document.getElementById('config-modal');
+            const adoModal = document.getElementById('ado-modal');
+            const closeConfigModalButton = document.getElementById('close-config-modal-button');
+            const closeModalAdoButton = document.getElementById('close-ado-modal-button');
+            const jsonEditorsContainer = document.getElementById('json-editors');
+            const saveConfigButton = document.getElementById('save-config-button');
+            const copyButton = document.getElementById('copy-button');
+            const resetButton = document.getElementById('reset-button');
+            const adoButton = document.getElementById('ado-button');
+            const createAdoWorkItemButton = document.getElementById('create-ado-work-item-button');
+            const toastNotification = document.getElementById('toast-notification');
+            const toastMessage = document.getElementById('toast-message');
+
+            // --- State Management ---
+            let currentActiveTemplate = null;
+            let aceEditor = null;
+            let templates = {};
+
+            // --- Default Configuration ---
+            const defaultTemplates = {
+                'Feature': {
+                    title: 'Feature',
+                    description: 'A shippable component of a product that delivers value to the user. Use the AI generator to elaborate on a basic idea.',
+                    fields: [
+                        { id: 'initialDetails', label: 'Provide a brief overview of the feature', type: 'textarea', placeholder: 'e.g., Implement a new dashboard for real-time sales analytics, showing key metrics like revenue, top-selling products, and regional performance.' },
+                        { id: 'title', label: 'Title', type: 'text', placeholder: 'Generated title will appear here...' },
+                        { id: 'problemStatement', label: 'Problem Statement', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 3 },
+                        { id: 'featureHypothesis', label: 'Feature Hypothesis', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 3 },
+                        { id: 'objectivesKeyResults', label: 'Objectives/Key Results', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 4 },
+                        { id: 'keySMEs', label: 'Key Subject Matter Experts', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 2 },
+                        { id: 'nonFunctionalRequirements', label: 'Non-Functional Requirements', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 4 },
+                        { id: 'externalDependencies', label: 'External Dependencies', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 2 },
+                        { id: 'riskReduction', label: 'Risk Reduction/Opportunity Enablement', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 3 },
+                    ]
+                },
+                'User Story': {
+                    title: 'User Story',
+                    description: 'Describe what a user wants to do, and the AI will generate a formal User Story and Acceptance Criteria.',
+                    fields: [
+                        { id: 'initialStoryDetails', label: 'What does the user want to do?', type: 'textarea', placeholder: 'e.g., A site administrator needs to be able to remove inappropriate comments from blog posts to maintain community standards.' },
+                        { id: 'title', label: 'Title', type: 'text', placeholder: 'Generated title will appear here...' },
+                        { id: 'userStory', label: 'User Story Description', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 3 },
+                        { id: 'acceptanceCriteria', label: 'Acceptance Criteria', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 5 },
+                        { id: 'storyPoints', label: 'Story Points', type: 'number', placeholder: 'e.g., 5' },
+                        { id: 'parentFeature', label: 'Parent Feature', type: 'text', placeholder: 'Enter the ID or Title of the parent Feature' }
+                    ]
+                },
+                'BDD': {
+                    title: 'BDD Scenario',
+                    description: 'Describe a feature\'s behavior in plain language, and the AI will generate the Gherkin syntax for you.',
+                    fields: [
+                        { id: 'scenarioDetails', label: 'Scenario Details', type: 'textarea', placeholder: 'Describe the user interaction and expected outcome. For example: "A user goes to the login page, enters their correct username and password, clicks the login button, and should then be taken to their personal dashboard page."' },
+                        { id: 'gherkin', label: 'Generated Gherkin Scenario', type: 'ace', placeholder: 'Generated Gherkin code will appear here...' }
+                    ]
+                },
+                'Risk': {
+                    title: 'Risk',
+                    description: 'Describe a potential risk, and the AI will generate a structured analysis and mitigation plan.',
+                    fields: [
+                        { id: 'initialRiskDetails', label: 'Provide a brief overview of the risk', type: 'textarea', placeholder: 'e.g., Our third-party payment processing API has been experiencing intermittent downtime, which could affect customer checkouts.' },
+                        { id: 'title', label: 'Title', type: 'text', placeholder: 'Generated title will appear here...' },
+                        { id: 'riskDescription', label: 'Risk Description', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 3 },
+                        { id: 'riskTrigger', label: 'Risk Trigger', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 2 },
+                        { id: 'impact', label: 'Impact', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 3 },
+                        { id: 'mitigationResponsePlan', label: 'Mitigation Response Plan', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 4 },
+                    ]
+                },
+                'Impediment': {
+                    title: 'Impediment',
+                    description: 'Describe a blocker, and the AI will generate a structured impediment report.',
+                    fields: [
+                        { id: 'initialImpedimentDetails', label: 'Provide a brief overview of the impediment', type: 'textarea', placeholder: 'e.g., The staging environment server is down, which is blocking all QA testing for the current sprint.' },
+                        { id: 'title', label: 'Title', type: 'text', placeholder: 'Generated title will appear here...' },
+                        { id: 'stepsTaken', label: 'Steps Taken', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 3 },
+                        { id: 'impact', label: 'Impact', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 3 },
+                        { id: 'desiredOutcome', label: 'Desired Outcome', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 2 },
+                    ]
+                },
+                'Spike': {
+                    title: 'Spike',
+                    description: 'Describe a research task, and the AI will generate a structured spike plan.',
+                    fields: [
+                        { id: 'initialSpikeDetails', label: 'Provide a brief overview of the research needed', type: 'textarea', placeholder: 'e.g., We need to investigate and compare two different charting libraries (D3.js vs. Chart.js) for our new analytics dashboard.' },
+                        { id: 'title', label: 'Title', type: 'text', placeholder: 'Generated title will appear here...' },
+                        { id: 'scenario', label: 'Scenario', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 3 },
+                        { id: 'purpose', label: 'Purpose', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 2 },
+                        { id: 'tasks', label: 'Tasks', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 4 },
+                    ]
+                },
+                'Decision': {
+                    title: 'Decision',
+                    description: 'Describe a problem or context, and the AI will generate a structured decision log entry.',
+                    fields: [
+                        { id: 'initialDecisionDetails', label: 'Provide a brief overview of the decision to be made', type: 'textarea', placeholder: 'e.g., We need to decide whether to build a new internal admin tool from scratch or purchase a third-party solution.' },
+                        { id: 'title', label: 'Title', type: 'text', placeholder: 'Generated title will appear here...' },
+                        { id: 'contextProblem', label: 'Context/Problem', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 3 },
+                        { id: 'currentState', label: 'Current State', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 2 },
+                        { id: 'proposedState', label: 'Proposed State', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 3 },
+                        { id: 'possibleBenefits', label: 'Possible Benefits', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 3 },
+                        { id: 'possibleRisks', label: 'Possible Risks', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 3 },
+                    ]
+                },
+                'Team PI Objective': {
+                    title: 'Team PI Objective',
+                    description: 'Describe a team\'s PI objective, and the AI will format it correctly.',
+                    fields: [
+                        { id: 'initialTeamPIObjectiveDetails', label: 'Provide a brief overview of the Team PI Objective', type: 'textarea', placeholder: 'e.g., The payments team will upgrade the payment gateway to support international currencies by the end of the PI to enable global sales expansion.' },
+                        { id: 'title', label: 'Title', type: 'text', placeholder: '[Team Name] will [action verb] [what / summary of features].' },
+                        { id: 'description', label: 'Description', type: 'textarea', placeholder: '[Team Name] will [action verb] [what / summary of features] by [deadline] so that [who / customer / business] will [action verb] [value purpose].', rows: 4 },
+                    ]
+                },
+                'Team Iteration Goal': {
+                    title: 'Team Iteration Goal',
+                    description: 'Describe a team\'s goal for the iteration, and the AI will structure it.',
+                    fields: [
+                        { id: 'initialTeamIterationGoalDetails', label: 'Provide a brief overview of the iteration goal', type: 'textarea', placeholder: 'e.g., Complete the user profile page, including the ability to upload a profile picture and update contact information.' },
+                        { id: 'title', label: 'Title', type: 'text', placeholder: 'Generated title will appear here...' },
+                        { id: 'goal', label: 'Goal', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 2 },
+                        { id: 'outcome', label: 'Outcome', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 3 },
+                        { id: 'valueAdded', label: 'Value Added', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 2 },
+                    ]
+                },
+                'Program PI Objective': {
+                    title: 'Program PI Objective',
+                    description: 'Describe a high-level Program Increment objective, and the AI will generate a structured plan.',
+                    fields: [
+                        { id: 'initialProgramPIObjectiveDetails', label: 'Provide a brief overview of the Program PI Objective', type: 'textarea', placeholder: 'e.g., Launch the new mobile application for iOS and Android to capture a new market segment and increase user engagement.' },
+                        { id: 'title', label: 'Title', type: 'text', placeholder: 'Generated title will appear here...' },
+                        { id: 'description', label: 'Description', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 3 },
+                        { id: 'businessValue', label: 'Business Value (1-10)', type: 'number', placeholder: 'Enter a value from 1 to 10' },
+                        { id: 'associatedFeatures', label: 'Associated Features', type: 'textarea', placeholder: 'List the Feature IDs or titles related to this objective.', rows: 4 },
+                    ]
+                }
+            };
+            
+            // --- Core Functions ---
+
+            function renderStaticIcons() {
+                document.getElementById('welcome-icon').innerHTML = `<i data-lucide="layout-template" class="w-full h-full"></i>`;
+                document.getElementById('copy-icon').innerHTML = `<i data-lucide="copy" class="w-full h-full"></i>`;
+                document.getElementById('reset-icon').innerHTML = `<i data-lucide="rotate-cw" class="w-full h-full"></i>`;
+                document.getElementById('ado-icon').innerHTML = `<i data-lucide="send" class="w-full h-full"></i>`;
+                document.getElementById('settings-icon').innerHTML = `<i data-lucide="settings" class="w-6 h-6"></i>`;
+                document.getElementById('close-icon-config').innerHTML = `<i data-lucide="x" class="w-6 h-6"></i>`;
+                document.getElementById('close-icon-ado').innerHTML = `<i data-lucide="x" class="w-6 h-6"></i>`;
+            }
+
+            function initApp() {
+                renderStaticIcons();
+                lucide.createIcons();
+                loadTemplates();
+                renderMenu();
+            }
+
+            function loadTemplates() {
+                try {
+                    const storedTemplates = localStorage.getItem('adoAcceleratorTemplates');
+                    if (storedTemplates) {
+                        templates = JSON.parse(storedTemplates);
+                        if (typeof templates !== 'object' || templates === null) throw new Error("Invalid stored data");
+                    } else {
+                        templates = JSON.parse(JSON.stringify(defaultTemplates));
+                    }
+                } catch (e) {
+                    console.error("Failed to load or parse templates from localStorage, reverting to defaults.", e);
+                    templates = JSON.parse(JSON.stringify(defaultTemplates));
+                }
+            }
+
+            function saveTemplates() {
+                try {
+                    localStorage.setItem('adoAcceleratorTemplates', JSON.stringify(templates));
+                    showToast('Configuration saved successfully!');
+                } catch (e) {
+                    console.error("Failed to save templates to localStorage.", e);
+                    showToast('Error: Could not save configuration.', 'error');
+                }
+            }
+
+            function renderMenu() {
+                menuContainer.innerHTML = '';
+                Object.keys(templates).forEach(key => {
+                    const template = templates[key];
+                    const button = document.createElement('button');
+                    button.className = 'menu-button w-full text-left px-4 py-3 rounded-lg font-medium text-gray-700 flex items-center';
+                    button.dataset.template = key;
+                    
+                    const iconMap = { 'Feature': 'gem', 'User Story': 'user-check', 'BDD': 'file-text', 'Risk': 'alert-triangle', 'Impediment': 'shield-alert', 'Spike': 'flask-conical', 'Decision': 'gavel', 'Team PI Objective': 'flag', 'Team Iteration Goal': 'repeat', 'Program PI Objective': 'network' };
+                    const iconName = iconMap[key] || 'file-code';
+                    
+                    button.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5 mr-3"></i><span>${template.title}</span>`;
+                    button.addEventListener('click', () => {
+                        renderTemplate(key);
+                        document.querySelectorAll('.menu-button').forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                    });
+                    menuContainer.appendChild(button);
+                });
+                lucide.createIcons();
+            }
+
+            function renderTemplate(key) {
+                currentActiveTemplate = key;
+                const template = templates[key];
+                if (!template) {
+                    console.error(`Template with key "${key}" not found.`);
+                    return;
+                }
+
+                if (aceEditor) {
+                    aceEditor.destroy();
+                    aceEditor = null;
+                }
+
+                let formHTML;
+
+                if (['Feature', 'Risk', 'User Story', 'Impediment', 'Spike', 'Decision', 'Team PI Objective', 'Team Iteration Goal', 'Program PI Objective'].includes(key)) {
+                    const initialField = template.fields[0];
+                    const generatedFields = template.fields.slice(1);
+                    const generatedContainerId = `ai-generated-${key.toLowerCase().replace(/\s/g, '')}-fields`;
+                    const generateButtonId = `${key.toLowerCase().replace(/\s/g, '')}-generate-button`;
+
+                    let generatedFieldsHTML = '';
+                    generatedFields.forEach(field => {
+                        generatedFieldsHTML += `
+                            <div>
+                                <label for="${field.id}" class="block text-sm font-medium text-gray-700 mb-1">${field.label}</label>
+                                <${field.type === 'textarea' ? 'textarea' : 'input'} 
+                                    type="${field.type}" 
+                                    id="${field.id}" 
+                                    ${field.rows ? `rows="${field.rows}"` : ''}
+                                    placeholder="${field.placeholder || ''}" 
+                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                </${field.type === 'textarea' ? 'textarea' : 'input'}>
+                            </div>`;
+                    });
+
+                    formHTML = `
+                        <div class="space-y-6">
+                            <div>
+                                <label for="${initialField.id}" class="block text-sm font-medium text-gray-700 mb-1">${initialField.label}</label>
+                                <textarea id="${initialField.id}" rows="4" placeholder="${initialField.placeholder || ''}" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+                                <div class="mt-4 text-right">
+                                    <button id="${generateButtonId}" class="ai-generator-button">
+                                        <i data-lucide="sparkles" class="w-4 h-4 mr-2"></i>
+                                        <span>Generate Details</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="${generatedContainerId}" class="space-y-6 pt-6 border-t border-dashed">
+                                ${generatedFieldsHTML}
+                            </div>
+                        </div>
+                    `;
+                } else { // BDD
+                    formHTML = `<div class="space-y-6">`;
+                    template.fields.forEach(field => {
+                        formHTML += `
+                            <div>
+                                <label for="${field.id}" class="block text-sm font-medium text-gray-700 mb-1">${field.label}</label>`;
+                        
+                        switch (field.type) {
+                            case 'textarea':
+                                formHTML += `<textarea id="${field.id}" rows="${field.rows || 4}" placeholder="${field.placeholder || ''}" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>`;
+                                break;
+                            case 'ace':
+                                formHTML += `<div id="ace-editor"></div>`;
+                                break;
+                        }
+                        formHTML += `</div>`;
+                    });
+                    formHTML += `</div>`;
+                }
+
+                templateContainer.innerHTML = `
+                    <div class="bg-white p-6 rounded-lg shadow-xl border border-gray-200">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-3">${template.title}</h2>
+                        <p class="text-gray-600 mb-6">${template.description}</p>
+                        ${formHTML}
+                    </div>
+                `;
+                actionFooter.classList.remove('hidden');
+                lucide.createIcons(); // Re-render icons for new content
+
+                if (key === 'BDD') {
+                    aceEditor = ace.edit("ace-editor");
+                    aceEditor.setTheme("ace/theme/tomorrow");
+                    aceEditor.session.setMode("ace/mode/gherkin");
+                    aceEditor.setOptions({
+                        minLines: 10,
+                        maxLines: 20,
+                        wrap: true,
+                        readOnly: false // Allow editing of the BDD content
+                    });
+                    // Set the initial placeholder content
+                    aceEditor.session.setValue(template.fields.find(f => f.id === 'gherkin').placeholder);
+
+                    // Add AI generation for BDD
+                    const scenarioDetailsInput = document.getElementById('scenarioDetails');
+                    const generateGherkinButton = document.createElement('button');
+                    generateGherkinButton.className = 'ai-generator-button mt-4';
+                    generateGherkinButton.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 mr-2"></i><span>Generate Gherkin</span>`;
+                    templateContainer.querySelector('.space-y-6 > div:first-child').appendChild(generateGherkinButton);
+                    lucide.createIcons();
+
+                    generateGherkinButton.addEventListener('click', async () => {
+                        const input = scenarioDetailsInput.value.trim();
+                        if (!input) {
+                            showToast('Please enter scenario details to generate Gherkin.', 'warning');
+                            return;
+                        }
+                        generateGherkinButton.disabled = true;
+                        generateGherkinButton.innerHTML = `<span class="loader mr-2"></span><span>Generating...</span>`;
+
+                        try {
+                            // Simulate API call for AI generation
+                            const generatedGherkin = await simulateApiCall(input, key);
+                            aceEditor.session.setValue(generatedGherkin);
+                            showToast('Gherkin generated successfully!');
+                        } catch (error) {
+                            console.error('Error generating Gherkin:', error);
+                            showToast('Failed to generate Gherkin. Please try again.', 'error');
+                        } finally {
+                            generateGherkinButton.disabled = false;
+                            generateGherkinButton.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 mr-2"></i><span>Generate Gherkin</span>`;
+                            lucide.createIcons();
+                        }
+                    });
+
+                } else if (['Feature', 'Risk', 'User Story', 'Impediment', 'Spike', 'Decision', 'Team PI Objective', 'Team Iteration Goal', 'Program PI Objective'].includes(key)) {
+                    const initialFieldInput = document.getElementById(template.fields[0].id);
+                    const generateButton = document.getElementById(`${key.toLowerCase().replace(/\s/g, '')}-generate-button`);
+                    const generatedFieldsContainer = document.getElementById(`ai-generated-${key.toLowerCase().replace(/\s/g, '')}-fields`);
+
+                    generateButton.addEventListener('click', async () => {
+                        const input = initialFieldInput.value.trim();
+                        if (!input) {
+                            showToast(`Please provide details for the ${template.title} to generate.`, 'warning');
+                            return;
+                        }
+
+                        generateButton.disabled = true;
+                        generateButton.innerHTML = `<span class="loader mr-2"></span><span>Generating...</span>`;
+                        generatedFieldsContainer.style.display = 'none'; // Hide while generating
+
+                        try {
+                            const generatedContent = await simulateApiCall(input, key); // Pass the template key to the API call
+                            
+                            // Populate the generated fields
+                            template.fields.slice(1).forEach(field => {
+                                const element = document.getElementById(field.id);
+                                if (element && generatedContent[field.id]) {
+                                    element.value = generatedContent[field.id];
+                                } else if (element) {
+                                    element.value = `[AI could not generate ${field.label}]`; // Fallback for fields not generated by AI
+                                }
+                            });
+                            generatedFieldsContainer.style.display = 'block'; // Show after generation
+                            showToast('Content generated successfully!');
+                        } catch (error) {
+                            console.error('Error generating content:', error);
+                            showToast('Failed to generate content. Please try again.', 'error');
+                        } finally {
+                            generateButton.disabled = false;
+                            generateButton.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 mr-2"></i><span>Generate Details</span>`;
+                            lucide.createIcons();
+                        }
+                    });
+                }
+            }
+
+            function getOutputContent() {
+                if (!currentActiveTemplate) {
+                    showToast('No template selected.', 'error');
+                    return '';
+                }
+
+                const template = templates[currentActiveTemplate];
+                let output = `## ${template.title}\n\n`;
+
+                template.fields.forEach(field => {
+                    let value;
+                    if (field.type === 'ace' && aceEditor) {
+                        value = aceEditor.getValue();
+                    } else {
+                        const element = document.getElementById(field.id);
+                        value = element ? element.value : '';
+                    }
+
+                    if (value) {
+                        output += `### ${field.label}\n${value}\n\n`;
+                    }
+                });
+                return output.trim();
+            }
+
+            function resetForm() {
+                if (!currentActiveTemplate) {
+                    showToast('No template selected to reset.', 'warning');
+                    return;
+                }
+                renderTemplate(currentActiveTemplate); // Re-render to clear all fields
+                showToast('Form reset successfully!');
+            }
+
+            function showToast(message, type = 'info') {
+                toastMessage.textContent = message;
+                toastNotification.className = 'toast fixed bottom-10 right-10 px-6 py-3 rounded-lg shadow-lg z-50'; // Reset classes
+                if (type === 'error') {
+                    toastNotification.classList.add('bg-red-600', 'text-white');
+                } else if (type === 'warning') {
+                    toastNotification.classList.add('bg-yellow-500', 'text-gray-900');
+                } else {
+                    toastNotification.classList.add('bg-gray-900', 'text-white');
+                }
+                toastNotification.classList.add('show');
+
+                setTimeout(() => {
+                    toastNotification.classList.remove('show');
+                }, 3000);
+            }
+
+            async function simulateApiCall(input, templateKey) {
+                // In a real application, this would be an actual API call to your backend
+                // that integrates with an AI model (e.g., Google's Gemini API, OpenAI GPT, etc.)
+                console.log(`Simulating AI generation for ${templateKey} with input: "${input}"`);
+
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        let result = {};
+                        if (templateKey === 'Feature') {
+                            result = {
+                                title: `Enhanced Dashboard for ${input.split(' ')[2] || 'Analytics'}`,
+                                problemStatement: `Users currently lack a consolidated view of real-time ${input.split(' ')[2] || 'sales'} data, making it difficult to track performance and identify trends quickly. This leads to delayed decision-making and missed opportunities.`,
+                                featureHypothesis: `By implementing a new real-time dashboard, we hypothesize that users will gain immediate insights into key metrics, enabling faster and more informed strategic decisions, thereby increasing overall business agility.`,
+                                objectivesKeyResults: `Objective: Improve data-driven decision-making for sales teams.\nKR1: 90% of sales managers report using the dashboard daily for performance monitoring.\nKR2: Reduce time spent on manual data compilation by 50%.\nKR3: Increase identified upselling opportunities by 15% within three months of launch.`,
+                                keySMEs: `Product Owner: Jane Doe\nData Analyst: John Smith\nSales Director: Emily White`,
+                                nonFunctionalRequirements: `Performance: Dashboard load time < 3 seconds.\nSecurity: Role-based access control for data visibility.\nScalability: Support 1000 concurrent users without degradation.\nReliability: 99.9% uptime.`,
+                                externalDependencies: `Salesforce API (for CRM data)\nStripe API (for payment data)\nInternal Data Warehouse`,
+                                riskReduction: `This feature reduces the risk of outdated information leading to poor business decisions by providing real-time data. It also enables quicker identification of sales opportunities, mitigating the risk of market share loss.`
+                            };
+                        } else if (templateKey === 'User Story') {
+                            result = {
+                                title: `As a site administrator, I want to remove inappropriate comments so that I can maintain community standards.`,
+                                userStory: `As a **site administrator**, I want to be able to **remove inappropriate comments** from blog posts, so that I can **maintain community standards** and ensure a positive user experience on our platform. This functionality should be intuitive and allow for quick moderation actions.`,
+                                acceptanceCriteria: `**Scenario: Administrator successfully removes a comment**\nGiven I am logged in as an administrator\nAnd I am viewing a blog post with comments\nWhen I click the "Remove" button next to an inappropriate comment\nThen the comment should be immediately hidden from public view\nAnd an audit log entry should be created recording the removal\n\n**Scenario: Comment removal notification**\nGiven a comment has been removed by an administrator\nWhen the original commenter tries to view the comment\nThen they should see a message indicating the comment was removed due to moderation.`
+                            };
+                        } else if (templateKey === 'BDD') {
+                            result = `Feature: User Login\n\nScenario: Successful Login\n  Given the user is on the login page\n  And the user enters a valid username\n  And the user enters a valid password\n  When the user clicks the "Login" button\n  Then the user should be redirected to their dashboard`;
+                        } else if (templateKey === 'Risk') {
+                            result = {
+                                title: `Intermittent Downtime of Third-Party Payment API`,
+                                riskDescription: `Our reliance on the third-party payment processing API for customer checkouts is at risk due to recent intermittent downtime. This could lead to transaction failures and a negative customer experience.`,
+                                riskTrigger: `Frequent reports of payment processing failures; alerts from the third-party provider about system instability; observed dips in successful transaction rates during peak hours.`,
+                                impact: `High: Direct loss of revenue from failed transactions, damage to brand reputation, customer frustration leading to churn, potential legal/compliance issues if payments are not reliably processed.`,
+                                mitigationResponsePlan: `**Mitigation:**\n1. Implement a circuit breaker pattern to gracefully handle API failures.\n2. Develop a fallback payment method (e.g., direct bank transfer or alternative gateway) for critical outages.\n3. Increase monitoring and alerting for payment gateway status.\n4. Establish a direct communication channel with the third-party provider for real-time updates.\n\n**Contingency:**\n1. Manual processing of critical orders during extended outages.\n2. Customer service team prepared with scripts for payment issue resolution.`
+                            };
+                        } else if (templateKey === 'Impediment') {
+                            result = {
+                                title: `Staging Environment Server Downtime Blocking QA Testing`,
+                                impedimentDescription: `The staging environment server has been down since yesterday, completely blocking all Quality Assurance (QA) testing for features planned in the current sprint. This prevents stories from being marked as "Done."`,
+                                stepsTaken: `1. Notified DevOps team immediately upon discovering the issue.\n2. Checked server logs for initial diagnosis.\n3. Attempted basic server restart (unsuccessful).`,
+                                impact: `High: Stories are not being tested, leading to a bottleneck in the development pipeline. This will directly impact our ability to meet sprint commitments and potentially delay release. Unidentified bugs could propagate to production.`,
+                                desiredOutcome: `The staging environment server needs to be brought back online and stabilized within the next 4 hours to allow QA testing to resume and unblock the current sprint's progress. We also need a root cause analysis to prevent recurrence.`
+                            };
+                        } else if (templateKey === 'Spike') {
+                            result = {
+                                title: `Research and Comparison of Charting Libraries (D3.js vs. Chart.js)`,
+                                scenario: `Our new analytics dashboard requires robust and interactive data visualizations. We need to evaluate the best charting library to meet our performance, customization, and development efficiency requirements.`,
+                                purpose: `To determine the optimal charting library for the new analytics dashboard, weighing factors such as performance, ease of use, customization capabilities, community support, and potential integration challenges with existing tech stack. The outcome will be a recommendation for either D3.js or Chart.js (or another viable option).`,
+                                tasks: `1. Create a proof-of-concept (POC) for D3.js to render a complex line chart with interactive elements.\n2. Create a POC for Chart.js to render a similar complex line chart.\n3. Document the development effort, learning curve, and performance characteristics for each POC.\n4. Research community support, documentation, and known limitations/strengths of both libraries.\n5. Prepare a comparative analysis report with a clear recommendation and justification.`
+                            };
+                        } else if (templateKey === 'Decision') {
+                            result = {
+                                title: `Build vs. Buy for Internal Admin Tool`,
+                                contextProblem: `Our operations team requires an internal tool to manage customer data, subscriptions, and issue refunds. The current manual processes are inefficient and prone to errors. We need to decide whether to develop this tool in-house or purchase a commercially available third-party solution.`,
+                                currentState: `Operations currently relies on fragmented spreadsheets and manual database queries, leading to slow response times for customer inquiries and increased risk of data inconsistencies. There is no centralized interface for managing common operational tasks.`,
+                                proposedState: `A dedicated admin tool that provides a centralized, intuitive interface for operations to efficiently manage customer data, subscriptions, and process refunds, reducing manual effort and improving accuracy.`,
+                                possibleBenefits: `**Build:** Full control over features and customization, seamless integration with existing systems, no recurring license fees.\n**Buy:** Faster time-to-market, lower initial development cost, vendor support and updates, established best practices.`,
+                                possibleRisks: `**Build:** Higher long-term maintenance burden, potential for scope creep, requires internal development resources, higher upfront development cost and risk.\n**Buy:** Vendor lock-in, limited customization, potential for unnecessary features, ongoing subscription costs, data security concerns with third-party.`
+                            };
+                        } else if (templateKey === 'Team PI Objective') {
+                            const teamName = 'Payments Team'; // Example, could be derived from input if more complex
+                            const actionVerb = 'upgrade';
+                            const whatSummary = 'the payment gateway to support international currencies';
+                            const deadline = 'the end of the PI';
+                            const whoCustomerBusiness = 'global sales expansion';
+                            const valuePurpose = 'enable new market opportunities and increase revenue';
+
+                            result = {
+                                title: `${teamName} will ${actionVerb} ${whatSummary}.`,
+                                description: `${teamName} will ${actionVerb} ${whatSummary} by ${deadline} so that we can ${valuePurpose}, enabling ${whoCustomerBusiness}.`
+                            };
+                        } else if (templateKey === 'Team Iteration Goal') {
+                             result = {
+                                title: `Complete User Profile Page Development`,
+                                goal: `To deliver a fully functional user profile page that allows users to manage their personal information.`,
+                                outcome: `Users can successfully update their contact details, upload a profile picture, and view their historical activity. This will improve user engagement and data accuracy.`,
+                                valueAdded: `Enhances user experience by providing personalized control over their profile. Reduces support requests related to user data updates. Lays groundwork for future profile-dependent features.`
+                            };
+                        } else if (templateKey === 'Program PI Objective') {
+                            result = {
+                                title: `Launch New Mobile Application (iOS & Android)`,
+                                description: `The Program will successfully launch a new native mobile application for both iOS and Android platforms by the end of the PI, targeting a new market segment and increasing user engagement by providing on-the-go access to key features.`,
+                                businessValue: 9, // Example value
+                                associatedFeatures: `FEAT-001: Mobile User Authentication\nFEAT-002: Mobile Product Browse\nFEAT-003: Mobile Checkout Process\nFEAT-004: Push Notifications`
+                            };
+                        }
+                        resolve(result);
+                    }, 1500); // Simulate network delay
+                });
+            }
+
+            // --- Event Listeners ---
+            copyButton.addEventListener('click', () => {
+                const output = getOutputContent();
+                if (output) {
+                    navigator.clipboard.writeText(output).then(() => {
+                        showToast('Content copied to clipboard!');
+                    }).catch(err => {
+                        console.error('Failed to copy text: ', err);
+                        showToast('Failed to copy content.', 'error');
+                    });
+                }
+            });
+
+            resetButton.addEventListener('click', resetForm);
+
+            configButton.addEventListener('click', () => {
+                jsonEditorsContainer.innerHTML = ''; // Clear previous editors
+                Object.keys(templates).forEach(key => {
+                    const template = templates[key];
+                    const editorDiv = document.createElement('div');
+                    editorDiv.className = 'mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50';
+                    editorDiv.innerHTML = `
+                        <h4 class="text-lg font-semibold mb-2 text-gray-800">${template.title} Template</h4>
+                        <div id="editor-${key}" class="w-full" style="height: 250px; border-radius: 0.375rem; border: 1px solid #d1d5db;"></div>
+                    `;
+                    jsonEditorsContainer.appendChild(editorDiv);
+
+                    const editor = ace.edit(`editor-${key}`);
+                    editor.setTheme("ace/theme/tomorrow");
+                    editor.session.setMode("ace/mode/json");
+                    editor.setOptions({
+                        tabSize: 2,
+                        useSoftTabs: true
+                    });
+                    editor.session.setValue(JSON.stringify(template, null, 2));
+                    editor.session.on('change', () => {
+                        try {
+                            const updatedTemplate = JSON.parse(editor.session.getValue());
+                            // Basic validation: ensure title and fields exist
+                            if (updatedTemplate.title && Array.isArray(updatedTemplate.fields)) {
+                                templates[key] = updatedTemplate;
+                                editorDiv.classList.remove('border-red-500'); // Remove error border if valid
+                            } else {
+                                editorDiv.classList.add('border-red-500'); // Add error border if invalid
+                            }
+                        } catch (e) {
+                            editorDiv.classList.add('border-red-500'); // Add error border on parse error
+                            console.error(`Error parsing JSON for ${key}:`, e);
+                        }
+                    });
+                });
+                configModal.classList.add('show');
+            });
+
+            closeConfigModalButton.addEventListener('click', () => {
+                configModal.classList.remove('show');
+            });
+
+            saveConfigButton.addEventListener('click', () => {
+                let hasError = false;
+                Object.keys(templates).forEach(key => {
+                    const editorDiv = document.querySelector(`#editor-${key}`).closest('.mb-6');
+                    if (editorDiv.classList.contains('border-red-500')) {
+                        hasError = true;
+                    }
+                });
+
+                if (hasError) {
+                    showToast('Cannot save: Some JSON configurations are invalid.', 'error');
+                    return;
+                }
+                saveTemplates();
+                renderMenu(); // Re-render the menu to reflect any title changes
+                configModal.classList.remove('show');
+            });
+
+            adoButton.addEventListener('click', () => {
+                adoModal.classList.add('show');
+            });
+
+            closeModalAdoButton.addEventListener('click', () => {
+                adoModal.classList.remove('show');
+            });
+
+            createAdoWorkItemButton.addEventListener('click', () => {
+                const org = document.getElementById('ado-org').value.trim();
+                const project = document.getElementById('ado-project').value.trim();
+                const pat = document.getElementById('ado-pat').value.trim();
+                const workItemContent = getOutputContent(); // Get the current work item content
+
+                if (!org || !project || !pat || !workItemContent) {
+                    showToast('Please fill in all ADO details and ensure work item content is generated.', 'warning');
+                    return;
+                }
+
+                // In a real application, you would make an AJAX call here to your backend
+                // or a proxy that interacts with Azure DevOps REST API.
+                // This is a simulation.
+                showToast('Simulating creation in ADO...', 'info');
+                console.log('--- ADO Creation Simulation ---');
+                console.log('Organization:', org);
+                console.log('Project:', project);
+                console.log('Work Item Type:', currentActiveTemplate);
+                console.log('Work Item Content:\n', workItemContent);
+                console.log('-------------------------------');
+
+                setTimeout(() => {
+                    showToast('Simulated ADO work item creation successful!', 'info');
+                    adoModal.classList.remove('show');
+                }, 2000);
+            });
+
+            // Initialize the app on page load
+            initApp();
+        });
+    </script>
+</body>
+</html>
