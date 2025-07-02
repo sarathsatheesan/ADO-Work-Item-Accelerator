@@ -52,6 +52,7 @@
 
     <div id="app-container" class="flex flex-col md:flex-row h-screen">
 
+        <!-- Main Content -->
         <main class="flex-1 p-6 md:p-8 lg:p-10 bg-white overflow-y-auto">
             <header class="mb-8">
                 <h1 class="text-3xl font-bold text-gray-900">ADO Work Item Accelerator - AWiA</h1>
@@ -80,10 +81,11 @@
                         <div id="ado-icon" class="w-5 h-5 mr-2"></div>
                         Create in ADO
                     </button>
-                </div>
+                 </div>
             </footer>
         </main>
 
+        <!-- Right Sidebar Menu -->
         <aside class="w-full md:w-72 bg-[#f8fafc] p-6 border-l border-gray-200">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-bold">Work Items</h2>
@@ -92,10 +94,12 @@
                 </button>
             </div>
             <nav id="menu-container" class="space-y-2">
-                </nav>
+                <!-- Dynamic menu buttons will be inserted here -->
+            </nav>
         </aside>
     </div>
 
+    <!-- Configuration Modal -->
     <div id="config-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center p-4 z-50">
         <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center mb-4 pb-4 border-b">
@@ -116,6 +120,7 @@
         </div>
     </div>
     
+    <!-- ADO Integration Modal -->
     <div id="ado-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center p-4 z-50">
         <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-lg">
             <div class="flex justify-between items-center mb-4">
@@ -156,6 +161,7 @@
     </div>
 
 
+    <!-- Toast Notification -->
     <div id="toast-notification" class="toast fixed bottom-10 right-10 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg z-50">
         <p id="toast-message"></p>
     </div>
@@ -256,7 +262,7 @@
                         { id: 'tasks', label: 'Tasks', type: 'textarea', placeholder: 'Generated content will appear here...', rows: 4 },
                     ]
                 },
-                'Decision': {
+                 'Decision': {
                     title: 'Decision',
                     description: 'Describe a problem or context, and the AI will generate a structured decision log entry.',
                     fields: [
@@ -440,359 +446,525 @@
                     });
                     formHTML += `</div>`;
                 }
-
+                
                 templateContainer.innerHTML = `
-                    <div class="bg-white p-6 rounded-lg shadow-xl border border-gray-200">
-                        <h2 class="text-2xl font-bold text-gray-900 mb-3">${template.title}</h2>
-                        <p class="text-gray-600 mb-6">${template.description}</p>
+                    <div class="fade-in">
+                        <h2 class="text-2xl font-bold text-gray-900">${template.title}</h2>
+                        <p class="text-gray-600 mt-1 mb-6">${template.description}</p>
                         ${formHTML}
-                    </div>
-                `;
-                actionFooter.classList.remove('hidden');
-                lucide.createIcons(); // Re-render icons for new content
+                    </div>`;
+                
+                const handlerMap = {
+                    'Feature': handleFeatureAiGeneration,
+                    'Risk': handleRiskAiGeneration,
+                    'User Story': handleUserStoryAiGeneration,
+                    'Impediment': handleImpedimentAiGeneration,
+                    'Spike': handleSpikeAiGeneration,
+                    'Decision': handleDecisionAiGeneration,
+                    'Team PI Objective': handleTeamPIObjectiveAiGeneration,
+                    'Team Iteration Goal': handleTeamIterationGoalAiGeneration,
+                    'Program PI Objective': handleProgramPIObjectiveAiGeneration,
+                    'BDD': handleBddAiGeneration
+                };
 
-                if (key === 'BDD') {
+                const generateButtonId = `${key.toLowerCase().replace(/\s/g, '')}-generate-button`;
+                const button = document.getElementById(generateButtonId);
+                if (button && handlerMap[key]) {
+                    button.addEventListener('click', handlerMap[key]);
+                } else if (key === 'BDD') {
+                     const detailsField = document.getElementById('scenarioDetails');
+                    if (detailsField) {
+                         const buttonContainer = document.createElement('div');
+                        buttonContainer.className = 'mt-4 text-right';
+                        const generateButton = document.createElement('button');
+                        generateButton.id = 'bdd-generate-button';
+                        generateButton.className = 'ai-generator-button';
+                        generateButton.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 mr-2"></i><span>Generate Gherkin</span>`;
+                        buttonContainer.appendChild(generateButton);
+                        detailsField.parentElement.appendChild(buttonContainer);
+                        generateButton.addEventListener('click', handleBddAiGeneration);
+                    }
+                }
+
+
+                const aceField = template.fields.find(f => f.type === 'ace');
+                if (aceField) {
                     aceEditor = ace.edit("ace-editor");
-                    aceEditor.setTheme("ace/theme/tomorrow");
+                    aceEditor.setTheme("ace/theme/chrome");
                     aceEditor.session.setMode("ace/mode/gherkin");
-                    aceEditor.setOptions({
-                        minLines: 10,
-                        maxLines: 20,
-                        wrap: true,
-                        readOnly: false // Allow editing of the BDD content
-                    });
-                    // Set the initial placeholder content
-                    aceEditor.session.setValue(template.fields.find(f => f.id === 'gherkin').placeholder);
+                    aceEditor.setValue(aceField.placeholder || '', -1);
+                    aceEditor.setOptions({ fontSize: "14px", showPrintMargin: false });
+                }
+                
+                lucide.createIcons();
+                actionFooter.classList.remove('hidden');
+            }
+            
+            async function handleGenericAiGeneration(buttonId, initialDetailsId, generatedFieldsContainerId, promptBuilder, schema, successMessage, errorMessage, fieldMapping) {
+                const button = document.getElementById(buttonId);
+                const initialDetailsInput = document.getElementById(initialDetailsId);
+                const userInput = initialDetailsInput.value.trim();
 
-                    // Add AI generation for BDD
-                    const scenarioDetailsInput = document.getElementById('scenarioDetails');
-                    const generateGherkinButton = document.createElement('button');
-                    generateGherkinButton.className = 'ai-generator-button mt-4';
-                    generateGherkinButton.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 mr-2"></i><span>Generate Gherkin</span>`;
-                    templateContainer.querySelector('.space-y-6 > div:first-child').appendChild(generateGherkinButton);
+                if (!userInput) {
+                    showToast('Please provide an initial overview first.', 'error');
+                    return;
+                }
+
+                button.disabled = true;
+                button.innerHTML = `<span class="loader mr-2"></span><span>Generating...</span>`;
+
+                const prompt = promptBuilder(userInput);
+
+                try {
+                    const payload = {
+                        contents: [{ role: "user", parts: [{ text: prompt }] }],
+                        generationConfig: {
+                            responseMimeType: "application/json",
+                            responseSchema: schema
+                        }
+                    };
+                    const apiKey = ""; // Leave empty
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorBody = await response.text();
+                        throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorBody}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (result.candidates && result.candidates.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        const generatedContent = JSON.parse(text);
+
+                        for (const [key, elementId] of Object.entries(fieldMapping)) {
+                             document.getElementById(elementId).value = generatedContent[key] || '';
+                        }
+                        
+                        document.getElementById(generatedFieldsContainerId).style.display = 'block';
+                        showToast(successMessage, 'success');
+                    } else {
+                        throw new Error("No content generated by the API.");
+                    }
+
+                } catch (error) {
+                    console.error(`${errorMessage} Error:`, error);
+                    showToast(`Failed to generate details. Please try again.`, 'error');
+                } finally {
+                    button.disabled = false;
+                    button.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 mr-2"></i><span>Generate Details</span>`;
                     lucide.createIcons();
+                }
+            }
+            
+            function handleFeatureAiGeneration() {
+                 handleGenericAiGeneration(
+                    'feature-generate-button',
+                    'initialDetails',
+                    'ai-generated-feature-fields',
+                    (userInput) => `Based on the following feature idea, elaborate and generate the content for the specified sections. Generate a concise, descriptive title for the feature as well. Feature Idea: "${userInput}".`,
+                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "problemStatement": { "type": "STRING" }, "featureHypothesis": { "type": "STRING" }, "objectivesKeyResults": { "type": "STRING" }, "keySMEs": { "type": "STRING" }, "nonFunctionalRequirements": { "type": "STRING" }, "externalDependencies": { "type": "STRING" }, "riskReduction": { "type": "STRING" } }, required: ["title", "problemStatement", "featureHypothesis", "objectivesKeyResults", "keySMEs", "nonFunctionalRequirements", "externalDependencies", "riskReduction"] },
+                    'Feature details generated successfully!',
+                    'Feature AI Generation',
+                    { title: 'title', problemStatement: 'problemStatement', featureHypothesis: 'featureHypothesis', objectivesKeyResults: 'objectivesKeyResults', keySMEs: 'keySMEs', nonFunctionalRequirements: 'nonFunctionalRequirements', externalDependencies: 'externalDependencies', riskReduction: 'riskReduction' }
+                );
+            }
 
-                    generateGherkinButton.addEventListener('click', async () => {
-                        const input = scenarioDetailsInput.value.trim();
-                        if (!input) {
-                            showToast('Please enter scenario details to generate Gherkin.', 'warning');
-                            return;
-                        }
-                        generateGherkinButton.disabled = true;
-                        generateGherkinButton.innerHTML = `<span class="loader mr-2"></span><span>Generating...</span>`;
+            function handleUserStoryAiGeneration() {
+                handleGenericAiGeneration(
+                    'userstory-generate-button',
+                    'initialStoryDetails',
+                    'ai-generated-userstory-fields',
+                     (userInput) => `Based on the following user story idea, generate a structured User Story work item. 1. Create a 'title' following the format '<Application Name> <Verb> <Noun>'. Infer the application name or use a placeholder like 'System' if not obvious. 2. Write the 'userStory' description strictly following the format 'As a [user role], I want [activity], so that [business value].' 3. Write a list of 'acceptanceCriteria' as a multi-line string, with each criterion on a new line. User Story Idea: "${userInput}"`,
+                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "userStory": { "type": "STRING" }, "acceptanceCriteria": { "type": "STRING" } }, required: ["title", "userStory", "acceptanceCriteria"] },
+                    'User Story details generated successfully!',
+                    'User Story AI Generation',
+                    { title: 'title', userStory: 'userStory', acceptanceCriteria: 'acceptanceCriteria' }
+                );
+            }
 
-                        try {
-                            // Simulate API call for AI generation
-                            const generatedGherkin = await simulateApiCall(input, key);
-                            aceEditor.session.setValue(generatedGherkin);
-                            showToast('Gherkin generated successfully!');
-                        } catch (error) {
-                            console.error('Error generating Gherkin:', error);
-                            showToast('Failed to generate Gherkin. Please try again.', 'error');
-                        } finally {
-                            generateGherkinButton.disabled = false;
-                            generateGherkinButton.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 mr-2"></i><span>Generate Gherkin</span>`;
-                            lucide.createIcons();
-                        }
+            function handleRiskAiGeneration() {
+                 handleGenericAiGeneration(
+                    'risk-generate-button',
+                    'initialRiskDetails',
+                    'ai-generated-risk-fields',
+                    (userInput) => `Based on the following risk overview, elaborate and generate the content for a structured risk analysis. Risk Overview: "${userInput}".`,
+                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "riskDescription": { "type": "STRING" }, "riskTrigger": { "type": "STRING" }, "impact": { "type": "STRING" }, "mitigationResponsePlan": { "type": "STRING" } }, required: ["title", "riskDescription", "riskTrigger", "impact", "mitigationResponsePlan"] },
+                    'Risk details generated successfully!',
+                    'Risk AI Generation',
+                    { title: 'title', riskDescription: 'riskDescription', riskTrigger: 'riskTrigger', impact: 'impact', mitigationResponsePlan: 'mitigationResponsePlan' }
+                );
+            }
+
+            function handleImpedimentAiGeneration() {
+                handleGenericAiGeneration(
+                    'impediment-generate-button',
+                    'initialImpedimentDetails',
+                    'ai-generated-impediment-fields',
+                    (userInput) => `Based on the following impediment overview, generate a structured impediment report. Create a concise title that summarizes the issue. Impediment Overview: "${userInput}"`,
+                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "stepsTaken": { "type": "STRING" }, "impact": { "type": "STRING" }, "desiredOutcome": { "type": "STRING" } }, required: ["title", "stepsTaken", "impact", "desiredOutcome"] },
+                    'Impediment details generated successfully!',
+                    'Impediment AI Generation',
+                    { title: 'title', stepsTaken: 'stepsTaken', impact: 'impact', desiredOutcome: 'desiredOutcome' }
+                );
+            }
+
+            function handleSpikeAiGeneration() {
+                handleGenericAiGeneration(
+                    'spike-generate-button',
+                    'initialSpikeDetails',
+                    'ai-generated-spike-fields',
+                    (userInput) => `Based on the following research overview, generate a structured Spike plan. Create a concise title that summarizes the research goal. Research Overview: "${userInput}"`,
+                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "scenario": { "type": "STRING" }, "purpose": { "type": "STRING" }, "tasks": { "type": "STRING" } }, required: ["title", "scenario", "purpose", "tasks"] },
+                    'Spike details generated successfully!',
+                    'Spike AI Generation',
+                    { title: 'title', scenario: 'scenario', purpose: 'purpose', tasks: 'tasks' }
+                );
+            }
+            
+            function handleDecisionAiGeneration() {
+                handleGenericAiGeneration(
+                    'decision-generate-button',
+                    'initialDecisionDetails',
+                    'ai-generated-decision-fields',
+                    (userInput) => `Based on the following decision overview, generate a structured decision log. Create a concise title that summarizes the decision. Decision Overview: "${userInput}"`,
+                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "contextProblem": { "type": "STRING" }, "currentState": { "type": "STRING" }, "proposedState": { "type": "STRING" }, "possibleBenefits": { "type": "STRING" }, "possibleRisks": { "type": "STRING" } }, required: ["title", "contextProblem", "currentState", "proposedState", "possibleBenefits", "possibleRisks"] },
+                    'Decision details generated successfully!',
+                    'Decision AI Generation',
+                    { title: 'title', contextProblem: 'contextProblem', currentState: 'currentState', proposedState: 'proposedState', possibleBenefits: 'possibleBenefits', possibleRisks: 'possibleRisks' }
+                );
+            }
+            
+            function handleTeamPIObjectiveAiGeneration() {
+                handleGenericAiGeneration(
+                    'teampiobjective-generate-button',
+                    'initialTeamPIObjectiveDetails',
+                    'ai-generated-teampiobjective-fields',
+                    (userInput) => `Based on the following overview, generate a structured Team PI Objective. The title must follow the format '[Team Name] will [action verb] [what / summary of features]'. The description must follow the format '[Team Name] will [action verb] [what / summary of features] by [deadline] so that [who / customer / business] will [action verb] [value purpose].' Overview: "${userInput}"`,
+                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "description": { "type": "STRING" } }, required: ["title", "description"] },
+                    'Team PI Objective details generated successfully!',
+                    'Team PI Objective AI Generation',
+                    { title: 'title', description: 'description' }
+                );
+            }
+
+            function handleTeamIterationGoalAiGeneration() {
+                handleGenericAiGeneration(
+                    'teamiterationgoal-generate-button',
+                    'initialTeamIterationGoalDetails',
+                    'ai-generated-teamiterationgoal-fields',
+                    (userInput) => `Based on the following overview, generate a structured Team Iteration Goal. Create a concise title that summarizes the goal. Overview: "${userInput}"`,
+                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "goal": { "type": "STRING" }, "outcome": { "type": "STRING" }, "valueAdded": { "type": "STRING" } }, required: ["title", "goal", "outcome", "valueAdded"] },
+                    'Team Iteration Goal details generated successfully!',
+                    'Team Iteration Goal AI Generation',
+                    { title: 'title', goal: 'goal', outcome: 'outcome', valueAdded: 'valueAdded' }
+                );
+            }
+
+            function handleProgramPIObjectiveAiGeneration() {
+                handleGenericAiGeneration(
+                    'programpiobjective-generate-button',
+                    'initialProgramPIObjectiveDetails',
+                    'ai-generated-programpiobjective-fields',
+                    (userInput) => `Based on the following overview, generate a structured Program PI Objective. Create a concise title. Describe the business value as a number from 1 to 10. List associated features. Overview: "${userInput}"`,
+                    { type: "OBJECT", properties: { "title": { "type": "STRING" }, "description": { "type": "STRING" }, "businessValue": { "type": "NUMBER" }, "associatedFeatures": { "type": "STRING" } }, required: ["title", "description", "businessValue", "associatedFeatures"] },
+                    'Program PI Objective details generated successfully!',
+                    'Program PI Objective AI Generation',
+                    { title: 'title', description: 'description', businessValue: 'businessValue', associatedFeatures: 'associatedFeatures' }
+                );
+            }
+
+            async function handleBddAiGeneration() {
+                const button = document.getElementById('bdd-generate-button');
+                const detailsInput = document.getElementById('scenarioDetails');
+                const details = detailsInput.value.trim();
+
+                if (!details) {
+                    showToast('Please provide details for the scenario.', 'error');
+                    return;
+                }
+
+                if (!aceEditor) {
+                    showToast('Gherkin editor is not ready.', 'error');
+                    return;
+                }
+
+                button.disabled = true;
+                button.innerHTML = `<span class="loader mr-2"></span><span>Generating...</span>`;
+
+                const prompt = `Based on the following scenario details, generate a complete Gherkin script using the "Given-When-Then" format. The output must be only the Gherkin code. Infer a suitable title for the "Feature:" and "Scenario:" lines from the details provided.\n\nScenario Details: "${details}"`;
+
+                try {
+                    const payload = {
+                        contents: [{ role: "user", parts: [{ text: prompt }] }]
+                    };
+                    const apiKey = ""; // Leave empty
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
                     });
 
-                } else if (['Feature', 'Risk', 'User Story', 'Impediment', 'Spike', 'Decision', 'Team PI Objective', 'Team Iteration Goal', 'Program PI Objective'].includes(key)) {
-                    const initialFieldInput = document.getElementById(template.fields[0].id);
-                    const generateButton = document.getElementById(`${key.toLowerCase().replace(/\s/g, '')}-generate-button`);
-                    const generatedFieldsContainer = document.getElementById(`ai-generated-${key.toLowerCase().replace(/\s/g, '')}-fields`);
+                    if (!response.ok) {
+                        const errorBody = await response.text();
+                        throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorBody}`);
+                    }
 
-                    generateButton.addEventListener('click', async () => {
-                        const input = initialFieldInput.value.trim();
-                        if (!input) {
-                            showToast(`Please provide details for the ${template.title} to generate.`, 'warning');
-                            return;
-                        }
+                    const result = await response.json();
+                    
+                    if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts[0].text) {
+                        const generatedGherkin = result.candidates[0].content.parts[0].text.trim();
+                        aceEditor.setValue(generatedGherkin, -1);
+                        showToast('Gherkin scenario generated successfully!', 'success');
+                    } else {
+                        throw new Error("No content generated by the API.");
+                    }
 
-                        generateButton.disabled = true;
-                        generateButton.innerHTML = `<span class="loader mr-2"></span><span>Generating...</span>`;
-                        generatedFieldsContainer.style.display = 'none'; // Hide while generating
-
-                        try {
-                            const generatedContent = await simulateApiCall(input, key); // Pass the template key to the API call
-                            
-                            // Populate the generated fields
-                            template.fields.slice(1).forEach(field => {
-                                const element = document.getElementById(field.id);
-                                if (element && generatedContent[field.id]) {
-                                    element.value = generatedContent[field.id];
-                                } else if (element) {
-                                    element.value = `[AI could not generate ${field.label}]`; // Fallback for fields not generated by AI
-                                }
-                            });
-                            generatedFieldsContainer.style.display = 'block'; // Show after generation
-                            showToast('Content generated successfully!');
-                        } catch (error) {
-                            console.error('Error generating content:', error);
-                            showToast('Failed to generate content. Please try again.', 'error');
-                        } finally {
-                            generateButton.disabled = false;
-                            generateButton.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 mr-2"></i><span>Generate Details</span>`;
-                            lucide.createIcons();
-                        }
-                    });
+                } catch (error) {
+                    console.error('BDD AI Generation Error:', error);
+                    showToast('Failed to generate Gherkin script. Please try again.', 'error');
+                    aceEditor.setValue(`---\n-- Error during generation.\n-- Please check the console for details.\n---`);
+                } finally {
+                    button.disabled = false;
+                    button.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 mr-2"></i><span>Generate Gherkin</span>`;
+                    lucide.createIcons();
                 }
             }
 
-            function getOutputContent() {
-                if (!currentActiveTemplate) {
-                    showToast('No template selected.', 'error');
-                    return '';
-                }
-
+            function generateOutputText() {
+                if (!currentActiveTemplate) return '';
                 const template = templates[currentActiveTemplate];
-                let output = `## ${template.title}\n\n`;
+                let output = `WORK ITEM: ${template.title.toUpperCase()}\n`;
+                output += `========================================\n\n`;
 
                 template.fields.forEach(field => {
+                    const initialFieldIds = ['initialDetails', 'scenarioDetails', 'initialRiskDetails', 'initialStoryDetails', 'initialImpedimentDetails', 'initialSpikeDetails', 'initialDecisionDetails', 'initialTeamPIObjectiveDetails', 'initialTeamIterationGoalDetails', 'initialProgramPIObjectiveDetails'];
+                    if (initialFieldIds.includes(field.id)) {
+                        return;
+                    }
+
                     let value;
                     if (field.type === 'ace' && aceEditor) {
                         value = aceEditor.getValue();
                     } else {
-                        const element = document.getElementById(field.id);
-                        value = element ? element.value : '';
+                        const input = document.getElementById(field.id);
+                        if(input) value = input.value;
                     }
-
-                    if (value) {
-                        output += `### ${field.label}\n${value}\n\n`;
-                    }
+                    
+                    output += `** ${field.label} **\n${value || '(Not provided)'}\n\n`;
                 });
-                return output.trim();
+                return output;
             }
 
-            function resetForm() {
-                if (!currentActiveTemplate) {
-                    showToast('No template selected to reset.', 'warning');
-                    return;
-                }
-                renderTemplate(currentActiveTemplate); // Re-render to clear all fields
-                showToast('Form reset successfully!');
-            }
-
-            function showToast(message, type = 'info') {
+            function showToast(message, type = 'success') {
                 toastMessage.textContent = message;
-                toastNotification.className = 'toast fixed bottom-10 right-10 px-6 py-3 rounded-lg shadow-lg z-50'; // Reset classes
+                toastNotification.className = 'toast fixed bottom-10 right-10 px-6 py-3 rounded-lg shadow-lg z-50'; // reset classes
                 if (type === 'error') {
-                    toastNotification.classList.add('bg-red-600', 'text-white');
-                } else if (type === 'warning') {
-                    toastNotification.classList.add('bg-yellow-500', 'text-gray-900');
+                     toastNotification.classList.add('bg-red-600', 'text-white');
+                } else if (type === 'info') {
+                     toastNotification.classList.add('bg-blue-600', 'text-white');
                 } else {
-                    toastNotification.classList.add('bg-gray-900', 'text-white');
+                     toastNotification.classList.add('bg-gray-900', 'text-white');
                 }
                 toastNotification.classList.add('show');
-
                 setTimeout(() => {
                     toastNotification.classList.remove('show');
                 }, 3000);
             }
+            
+            function generateAdoPayload() {
+                if (!currentActiveTemplate) return null;
 
-            async function simulateApiCall(input, templateKey) {
-                // In a real application, this would be an actual API call to your backend
-                // that integrates with an AI model (e.g., Google's Gemini API, OpenAI GPT, etc.)
-                console.log(`Simulating AI generation for ${templateKey} with input: "${input}"`);
+                const template = templates[currentActiveTemplate];
+                const titleField = template.fields.find(f => f.id === 'title' || f.id === 'scenarioTitle');
+                const title = titleField ? document.getElementById(titleField.id).value : 'Generated Work Item';
+                
+                let description = '';
+                template.fields.forEach(field => {
+                    const initialFieldIds = ['initialDetails', 'scenarioDetails', 'initialRiskDetails', 'initialStoryDetails', 'initialImpedimentDetails', 'initialSpikeDetails', 'initialDecisionDetails', 'initialTeamPIObjectiveDetails', 'initialTeamIterationGoalDetails', 'initialProgramPIObjectiveDetails', 'title', 'scenarioTitle'];
+                    if (initialFieldIds.includes(field.id)) {
+                        return;
+                    }
 
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        let result = {};
-                        if (templateKey === 'Feature') {
-                            result = {
-                                title: `Enhanced Dashboard for ${input.split(' ')[2] || 'Analytics'}`,
-                                problemStatement: `Users currently lack a consolidated view of real-time ${input.split(' ')[2] || 'sales'} data, making it difficult to track performance and identify trends quickly. This leads to delayed decision-making and missed opportunities.`,
-                                featureHypothesis: `By implementing a new real-time dashboard, we hypothesize that users will gain immediate insights into key metrics, enabling faster and more informed strategic decisions, thereby increasing overall business agility.`,
-                                objectivesKeyResults: `Objective: Improve data-driven decision-making for sales teams.\nKR1: 90% of sales managers report using the dashboard daily for performance monitoring.\nKR2: Reduce time spent on manual data compilation by 50%.\nKR3: Increase identified upselling opportunities by 15% within three months of launch.`,
-                                keySMEs: `Product Owner: Jane Doe\nData Analyst: John Smith\nSales Director: Emily White`,
-                                nonFunctionalRequirements: `Performance: Dashboard load time < 3 seconds.\nSecurity: Role-based access control for data visibility.\nScalability: Support 1000 concurrent users without degradation.\nReliability: 99.9% uptime.`,
-                                externalDependencies: `Salesforce API (for CRM data)\nStripe API (for payment data)\nInternal Data Warehouse`,
-                                riskReduction: `This feature reduces the risk of outdated information leading to poor business decisions by providing real-time data. It also enables quicker identification of sales opportunities, mitigating the risk of market share loss.`
-                            };
-                        } else if (templateKey === 'User Story') {
-                            result = {
-                                title: `As a site administrator, I want to remove inappropriate comments so that I can maintain community standards.`,
-                                userStory: `As a **site administrator**, I want to be able to **remove inappropriate comments** from blog posts, so that I can **maintain community standards** and ensure a positive user experience on our platform. This functionality should be intuitive and allow for quick moderation actions.`,
-                                acceptanceCriteria: `**Scenario: Administrator successfully removes a comment**\nGiven I am logged in as an administrator\nAnd I am viewing a blog post with comments\nWhen I click the "Remove" button next to an inappropriate comment\nThen the comment should be immediately hidden from public view\nAnd an audit log entry should be created recording the removal\n\n**Scenario: Comment removal notification**\nGiven a comment has been removed by an administrator\nWhen the original commenter tries to view the comment\nThen they should see a message indicating the comment was removed due to moderation.`
-                            };
-                        } else if (templateKey === 'BDD') {
-                            result = `Feature: User Login\n\nScenario: Successful Login\n  Given the user is on the login page\n  And the user enters a valid username\n  And the user enters a valid password\n  When the user clicks the "Login" button\n  Then the user should be redirected to their dashboard`;
-                        } else if (templateKey === 'Risk') {
-                            result = {
-                                title: `Intermittent Downtime of Third-Party Payment API`,
-                                riskDescription: `Our reliance on the third-party payment processing API for customer checkouts is at risk due to recent intermittent downtime. This could lead to transaction failures and a negative customer experience.`,
-                                riskTrigger: `Frequent reports of payment processing failures; alerts from the third-party provider about system instability; observed dips in successful transaction rates during peak hours.`,
-                                impact: `High: Direct loss of revenue from failed transactions, damage to brand reputation, customer frustration leading to churn, potential legal/compliance issues if payments are not reliably processed.`,
-                                mitigationResponsePlan: `**Mitigation:**\n1. Implement a circuit breaker pattern to gracefully handle API failures.\n2. Develop a fallback payment method (e.g., direct bank transfer or alternative gateway) for critical outages.\n3. Increase monitoring and alerting for payment gateway status.\n4. Establish a direct communication channel with the third-party provider for real-time updates.\n\n**Contingency:**\n1. Manual processing of critical orders during extended outages.\n2. Customer service team prepared with scripts for payment issue resolution.`
-                            };
-                        } else if (templateKey === 'Impediment') {
-                            result = {
-                                title: `Staging Environment Server Downtime Blocking QA Testing`,
-                                impedimentDescription: `The staging environment server has been down since yesterday, completely blocking all Quality Assurance (QA) testing for features planned in the current sprint. This prevents stories from being marked as "Done."`,
-                                stepsTaken: `1. Notified DevOps team immediately upon discovering the issue.\n2. Checked server logs for initial diagnosis.\n3. Attempted basic server restart (unsuccessful).`,
-                                impact: `High: Stories are not being tested, leading to a bottleneck in the development pipeline. This will directly impact our ability to meet sprint commitments and potentially delay release. Unidentified bugs could propagate to production.`,
-                                desiredOutcome: `The staging environment server needs to be brought back online and stabilized within the next 4 hours to allow QA testing to resume and unblock the current sprint's progress. We also need a root cause analysis to prevent recurrence.`
-                            };
-                        } else if (templateKey === 'Spike') {
-                            result = {
-                                title: `Research and Comparison of Charting Libraries (D3.js vs. Chart.js)`,
-                                scenario: `Our new analytics dashboard requires robust and interactive data visualizations. We need to evaluate the best charting library to meet our performance, customization, and development efficiency requirements.`,
-                                purpose: `To determine the optimal charting library for the new analytics dashboard, weighing factors such as performance, ease of use, customization capabilities, community support, and potential integration challenges with existing tech stack. The outcome will be a recommendation for either D3.js or Chart.js (or another viable option).`,
-                                tasks: `1. Create a proof-of-concept (POC) for D3.js to render a complex line chart with interactive elements.\n2. Create a POC for Chart.js to render a similar complex line chart.\n3. Document the development effort, learning curve, and performance characteristics for each POC.\n4. Research community support, documentation, and known limitations/strengths of both libraries.\n5. Prepare a comparative analysis report with a clear recommendation and justification.`
-                            };
-                        } else if (templateKey === 'Decision') {
-                            result = {
-                                title: `Build vs. Buy for Internal Admin Tool`,
-                                contextProblem: `Our operations team requires an internal tool to manage customer data, subscriptions, and issue refunds. The current manual processes are inefficient and prone to errors. We need to decide whether to develop this tool in-house or purchase a commercially available third-party solution.`,
-                                currentState: `Operations currently relies on fragmented spreadsheets and manual database queries, leading to slow response times for customer inquiries and increased risk of data inconsistencies. There is no centralized interface for managing common operational tasks.`,
-                                proposedState: `A dedicated admin tool that provides a centralized, intuitive interface for operations to efficiently manage customer data, subscriptions, and process refunds, reducing manual effort and improving accuracy.`,
-                                possibleBenefits: `**Build:** Full control over features and customization, seamless integration with existing systems, no recurring license fees.\n**Buy:** Faster time-to-market, lower initial development cost, vendor support and updates, established best practices.`,
-                                possibleRisks: `**Build:** Higher long-term maintenance burden, potential for scope creep, requires internal development resources, higher upfront development cost and risk.\n**Buy:** Vendor lock-in, limited customization, potential for unnecessary features, ongoing subscription costs, data security concerns with third-party.`
-                            };
-                        } else if (templateKey === 'Team PI Objective') {
-                            const teamName = 'Payments Team'; // Example, could be derived from input if more complex
-                            const actionVerb = 'upgrade';
-                            const whatSummary = 'the payment gateway to support international currencies';
-                            const deadline = 'the end of the PI';
-                            const whoCustomerBusiness = 'global sales expansion';
-                            const valuePurpose = 'enable new market opportunities and increase revenue';
-
-                            result = {
-                                title: `${teamName} will ${actionVerb} ${whatSummary}.`,
-                                description: `${teamName} will ${actionVerb} ${whatSummary} by ${deadline} so that we can ${valuePurpose}, enabling ${whoCustomerBusiness}.`
-                            };
-                        } else if (templateKey === 'Team Iteration Goal') {
-                             result = {
-                                title: `Complete User Profile Page Development`,
-                                goal: `To deliver a fully functional user profile page that allows users to manage their personal information.`,
-                                outcome: `Users can successfully update their contact details, upload a profile picture, and view their historical activity. This will improve user engagement and data accuracy.`,
-                                valueAdded: `Enhances user experience by providing personalized control over their profile. Reduces support requests related to user data updates. Lays groundwork for future profile-dependent features.`
-                            };
-                        } else if (templateKey === 'Program PI Objective') {
-                            result = {
-                                title: `Launch New Mobile Application (iOS & Android)`,
-                                description: `The Program will successfully launch a new native mobile application for both iOS and Android platforms by the end of the PI, targeting a new market segment and increasing user engagement by providing on-the-go access to key features.`,
-                                businessValue: 9, // Example value
-                                associatedFeatures: `FEAT-001: Mobile User Authentication\nFEAT-002: Mobile Product Browse\nFEAT-003: Mobile Checkout Process\nFEAT-004: Push Notifications`
-                            };
-                        }
-                        resolve(result);
-                    }, 1500); // Simulate network delay
+                    let value;
+                     if (field.type === 'ace' && aceEditor) {
+                        value = aceEditor.getValue();
+                    } else {
+                        const input = document.getElementById(field.id);
+                        if(input) value = input.value;
+                    }
+                    
+                    description += `<h3>${field.label}</h3><p>${(value || '(Not provided)').replace(/\n/g, '<br>')}</p>`;
                 });
+                
+                const workItemTypeMap = {
+                    'Feature': 'Feature',
+                    'User Story': 'User Story',
+                    'BDD': 'Test Case',
+                    'Risk': 'Issue',
+                    'Impediment': 'Impediment',
+                    'Spike': 'Task',
+                    'Decision': 'Issue',
+                    'Team PI Objective': 'Objective',
+                    'Team Iteration Goal': 'Task',
+                    'Program PI Objective': 'Objective'
+                };
+                const workItemType = workItemTypeMap[currentActiveTemplate] || 'Task';
+                
+                return [
+                    {
+                        "op": "add",
+                        "path": "/fields/System.Title",
+                        "value": title
+                    },
+                    {
+                        "op": "add",
+                        "path": "/fields/System.Description",
+                        "value": description
+                    }
+                ];
             }
 
-            // --- Event Listeners ---
-            copyButton.addEventListener('click', () => {
-                const output = getOutputContent();
-                if (output) {
-                    navigator.clipboard.writeText(output).then(() => {
-                        showToast('Content copied to clipboard!');
-                    }).catch(err => {
-                        console.error('Failed to copy text: ', err);
-                        showToast('Failed to copy content.', 'error');
-                    });
-                }
-            });
+            function handleCreateInAdo() {
+                const org = document.getElementById('ado-org').value;
+                const project = document.getElementById('ado-project').value;
+                const pat = document.getElementById('ado-pat').value;
 
-            resetButton.addEventListener('click', resetForm);
-
-            configButton.addEventListener('click', () => {
-                jsonEditorsContainer.innerHTML = ''; // Clear previous editors
-                Object.keys(templates).forEach(key => {
-                    const template = templates[key];
-                    const editorDiv = document.createElement('div');
-                    editorDiv.className = 'mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50';
-                    editorDiv.innerHTML = `
-                        <h4 class="text-lg font-semibold mb-2 text-gray-800">${template.title} Template</h4>
-                        <div id="editor-${key}" class="w-full" style="height: 250px; border-radius: 0.375rem; border: 1px solid #d1d5db;"></div>
-                    `;
-                    jsonEditorsContainer.appendChild(editorDiv);
-
-                    const editor = ace.edit(`editor-${key}`);
-                    editor.setTheme("ace/theme/tomorrow");
-                    editor.session.setMode("ace/mode/json");
-                    editor.setOptions({
-                        tabSize: 2,
-                        useSoftTabs: true
-                    });
-                    editor.session.setValue(JSON.stringify(template, null, 2));
-                    editor.session.on('change', () => {
-                        try {
-                            const updatedTemplate = JSON.parse(editor.session.getValue());
-                            // Basic validation: ensure title and fields exist
-                            if (updatedTemplate.title && Array.isArray(updatedTemplate.fields)) {
-                                templates[key] = updatedTemplate;
-                                editorDiv.classList.remove('border-red-500'); // Remove error border if valid
-                            } else {
-                                editorDiv.classList.add('border-red-500'); // Add error border if invalid
-                            }
-                        } catch (e) {
-                            editorDiv.classList.add('border-red-500'); // Add error border on parse error
-                            console.error(`Error parsing JSON for ${key}:`, e);
-                        }
-                    });
-                });
-                configModal.classList.add('show');
-            });
-
-            closeConfigModalButton.addEventListener('click', () => {
-                configModal.classList.remove('show');
-            });
-
-            saveConfigButton.addEventListener('click', () => {
-                let hasError = false;
-                Object.keys(templates).forEach(key => {
-                    const editorDiv = document.querySelector(`#editor-${key}`).closest('.mb-6');
-                    if (editorDiv.classList.contains('border-red-500')) {
-                        hasError = true;
-                    }
-                });
-
-                if (hasError) {
-                    showToast('Cannot save: Some JSON configurations are invalid.', 'error');
+                if (!org || !project || !pat) {
+                    showToast('Please fill in all ADO fields.', 'error');
                     return;
                 }
-                saveTemplates();
-                renderMenu(); // Re-render the menu to reflect any title changes
-                configModal.classList.remove('show');
+
+                const payload = generateAdoPayload();
+                if (!payload) {
+                    showToast('Could not generate work item data.', 'error');
+                    return;
+                }
+                
+                const workItemTypeMap = { 'Feature': 'Feature', 'User Story': 'User Story', 'BDD': 'Test Case', 'Risk': 'Issue', 'Impediment': 'Impediment', 'Spike': 'Task', 'Decision': 'Issue', 'Team PI Objective': 'Objective', 'Team Iteration Goal': 'Task', 'Program PI Objective': 'Objective' };
+                const workItemType = workItemTypeMap[currentActiveTemplate] || 'Task';
+                const apiUrl = `https://dev.azure.com/${org}/${project}/_apis/wit/workitems/$${workItemType}?api-version=7.1-preview.3`;
+
+                console.log("--- SIMULATED ADO API CALL ---");
+                console.log("This request was NOT actually sent. This is a simulation for demonstration purposes.");
+                console.log("URL:", apiUrl);
+                console.log("Method: POST");
+                console.log("Headers:", {
+                    'Content-Type': 'application/json-patch+json',
+                    'Authorization': 'Basic ' + btoa("" + ":" + pat)
+                });
+                console.log("Body (Payload):", JSON.stringify(payload, null, 2));
+                
+                adoModal.classList.remove('show');
+                showToast('Work item creation simulated. Check the developer console for details.', 'info');
+            }
+
+
+            // --- Event Listeners ---
+
+            copyButton.addEventListener('click', () => {
+                const textToCopy = generateOutputText();
+                 if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(textToCopy)
+                        .then(() => showToast('Copied to clipboard!'))
+                        .catch(() => showToast('Failed to copy.', 'error'));
+                } else {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = textToCopy;
+                    textArea.style.position = "fixed";
+                    textArea.style.left = "-999999px";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        showToast('Copied to clipboard!');
+                    } catch (err) {
+                        showToast('Failed to copy.', 'error');
+                    }
+                    document.body.removeChild(textArea);
+                }
+            });
+
+            resetButton.addEventListener('click', () => {
+                if (currentActiveTemplate) {
+                    renderTemplate(currentActiveTemplate);
+                    showToast('Form has been reset.');
+                }
             });
 
             adoButton.addEventListener('click', () => {
-                adoModal.classList.add('show');
-            });
-
-            closeModalAdoButton.addEventListener('click', () => {
-                adoModal.classList.remove('show');
-            });
-
-            createAdoWorkItemButton.addEventListener('click', () => {
-                const org = document.getElementById('ado-org').value.trim();
-                const project = document.getElementById('ado-project').value.trim();
-                const pat = document.getElementById('ado-pat').value.trim();
-                const workItemContent = getOutputContent(); // Get the current work item content
-
-                if (!org || !project || !pat || !workItemContent) {
-                    showToast('Please fill in all ADO details and ensure work item content is generated.', 'warning');
+                if(!currentActiveTemplate) {
+                    showToast('Please select a template first.', 'error');
                     return;
                 }
+                adoModal.classList.add('show');
+                lucide.createIcons(); // Re-render icons inside the modal
+            });
+            
+            createAdoWorkItemButton.addEventListener('click', handleCreateInAdo);
 
-                // In a real application, you would make an AJAX call here to your backend
-                // or a proxy that interacts with Azure DevOps REST API.
-                // This is a simulation.
-                showToast('Simulating creation in ADO...', 'info');
-                console.log('--- ADO Creation Simulation ---');
-                console.log('Organization:', org);
-                console.log('Project:', project);
-                console.log('Work Item Type:', currentActiveTemplate);
-                console.log('Work Item Content:\n', workItemContent);
-                console.log('-------------------------------');
-
-                setTimeout(() => {
-                    showToast('Simulated ADO work item creation successful!', 'info');
-                    adoModal.classList.remove('show');
-                }, 2000);
+            configButton.addEventListener('click', () => {
+                configModal.classList.add('show');
+                jsonEditorsContainer.innerHTML = '';
+                Object.keys(templates).forEach(key => {
+                    const editorHTML = `
+                        <div>
+                            <h4 class="text-lg font-semibold mb-2">${templates[key].title}</h4>
+                            <textarea id="json-editor-${key}" class="w-full h-64 p-2 font-mono text-sm border border-gray-300 rounded-md">${JSON.stringify(templates[key], null, 2)}</textarea>
+                        </div>
+                    `;
+                    jsonEditorsContainer.innerHTML += editorHTML;
+                });
             });
 
-            // Initialize the app on page load
+            closeConfigModalButton.addEventListener('click', () => configModal.classList.remove('show'));
+            closeModalAdoButton.addEventListener('click', () => adoModal.classList.remove('show'));
+            
+            saveConfigButton.addEventListener('click', () => {
+                try {
+                    const newTemplates = {};
+                    let parseError = false;
+                    Object.keys(templates).forEach(key => {
+                        if (parseError) return;
+                        const editor = document.getElementById(`json-editor-${key}`);
+                        try {
+                            newTemplates[key] = JSON.parse(editor.value);
+                        } catch(e) {
+                            showToast(`Invalid JSON for template: ${templates[key].title}`, 'error');
+                            console.error(`Parsing error for ${key}:`, e);
+                            parseError = true;
+                        }
+                    });
+
+                    if (!parseError) {
+                        templates = newTemplates;
+                        saveTemplates();
+                        configModal.classList.remove('show');
+                        renderMenu();
+                        if (currentActiveTemplate && templates[currentActiveTemplate]) {
+                            renderTemplate(currentActiveTemplate);
+                        } else if (currentActiveTemplate) {
+                            templateContainer.innerHTML = `<div class="text-center p-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50"><div id="welcome-icon" class="mx-auto h-12 w-12 text-gray-400"><i data-lucide="layout-template" class="w-full h-full"></i></div><h3 class="mt-2 text-lg font-medium text-gray-900">Template no longer exists</h3><p class="mt-1 text-sm text-gray-500">The previously selected template has been removed. Please select another.</p></div>`;
+                            actionFooter.classList.add('hidden');
+                            currentActiveTemplate = null;
+                        }
+                    }
+                } catch (e) {
+                     showToast('An unexpected error occurred while saving.', 'error');
+                     console.error(e);
+                }
+            });
+
+            // --- App Kickoff ---
             initApp();
         });
     </script>
